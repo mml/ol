@@ -1,0 +1,56 @@
+A basic x86-targeting compiler for a very simple object-oriented language.
+
+The language is a simplified subset of Ruby.  A complete PEG[1] will follow, but
+from Ruby we will take the following notions initially.
+
+- All values are objects.
+- All objects belong to classes (distinct from io and JavaScript).
+- The only named unit of computation is a method (no unattached
+  functions/subroutines).
+- The same identifier rules, including that classes/globals start with a capital
+  letter.
+- @ and $ as scoping sigils
+- "Primitive" types: nil, true, false, Fixnums
+- the following forms
+  - class...end (with '< Foo' superclass specification)
+  - def...end
+  - if...else...elsif...end and variants
+  - assignment
+  - method calls
+  - syntactic sugar to convert infix operators to method calls: + - * / << >>
+- syntax restrictions from Ruby
+  - ()s on method defs and calls are not, for now, optional
+
+The garbage collector will be a simple stop-and-copy.
+
+The implementation of the compiler will likely look like this:
+- Write a complete grammar in treetop[3]
+- Write an emitter that takes the IR returned from the treetop parser and
+  produces Ruby code.
+- Write a harness that can take a bit of code, run it through a specified series
+  of transforms (at this point this will just be the parse/deparse pair) and
+  execute it, and compare the results with running the initial code under MRI.
+- Begin building a test suite.
+- Write program regularization/language simplification/analysis passes.
+- Write register allocator.
+- Write code emitter.
+
+Primary long-term goals for the compiler:
+- Reliable and correct
+- High usability.  In particular, top-notch error mesages.
+- Produces fast, space-efficient code
+
+Anticipated Improvements
+  Compiler
+    - Optimizations
+  Language
+    - lambda and blocks
+    - Strings
+    - Arrays
+    - all of Ruby (use Markus Liedl's full Ruby grammar[2]?)
+  Runtime
+    - A better garbage collector
+
+[1] http://en.wikipedia.org/wiki/Parsing_expression_grammar
+[2] http://rubyforge.org/projects/ruby-tp-dw-gram/
+[3] http://treetop.rubyforge.org/

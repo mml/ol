@@ -1,0 +1,36 @@
+- 666
+- |
+  class K
+  end
+- |
+  class K
+    def f()
+      666
+    end
+  end
+- |
+  class K < L
+  end
+- |
+  class K<L
+    def f()
+      666
+    end
+  end
+- |
+  class K < L
+    def f(x,y)
+      x
+      y
+    end
+  end
+# failure cases
+#- |
+#  def f
+#    def g
+#      class K
+#      end
+#      22
+#    end
+#    33
+#  end

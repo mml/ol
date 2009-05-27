@@ -1,0 +1,71 @@
+# This is not yet complete
+grammar ObjLang
+  rule top_stmt
+    blank? ( class_def / meth_def / integer ) blank?
+  end
+
+  rule stmt
+    blank? ( compound_expr / simple_expr nl )
+  end
+
+  rule compound_expr
+    meth_def
+  end
+
+  rule simple_expr
+    integer / varref
+  end
+
+  # Expressions
+  rule class_def
+    class_kw sp
+    const_id (sp? '<' sp? const_id)? sp? nl
+    (stmt / blank)*
+    end_kw nl
+  end
+
+  rule meth_def
+    def_kw sp
+    id sp? '(' ( id ( ',' id )* )? ')' nl
+    (stmt / blank)*
+    end_kw nl
+  end
+
+  rule integer
+    [0-9]+
+  end
+
+  rule varref
+    !'end' id
+  end
+
+  # Keywords
+  rule class_kw
+    'class'
+  end
+  rule def_kw
+    'def'
+  end
+  rule end_kw
+    'end'
+  end
+
+  # Identifiers
+  rule const_id
+    [A-Z] [A-Za-z_]*
+  end
+  rule id
+    [A-Za-z_]+
+  end
+
+  # Three different classes of whitespace
+  rule sp
+    [ \t]+
+  end
+  rule blank
+    [ \t\n]+
+  end
+  rule nl
+    [\n]
+  end
+end
