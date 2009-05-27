@@ -17,7 +17,7 @@ from Ruby we will take the following notions initially.
   - if...else...elsif...end and variants
   - assignment
   - method calls
-  - syntactic sugar to convert infix operators to method calls: + - * / << >>
+  - syntactic sugar to convert infix operators to method calls: + - * / << >> ==
 - syntax restrictions from Ruby
   - ()s on method defs and calls are not, for now, optional
 
