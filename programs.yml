@@ -25,6 +25,14 @@
       y
     end
   end
+- | 
+  def f(x, y)
+    if x
+      y
+    else
+      x
+    end
+  end
 # failure cases
 #- |
 #  def f

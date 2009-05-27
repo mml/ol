@@ -8,8 +8,19 @@ grammar ObjLang
     blank? ( compound_expr / simple_expr nl )
   end
 
+  rule expr
+    compound_expr / simple_expr
+  end
+
   rule compound_expr
-    meth_def
+    meth_def / if_expr
+  end
+
+  rule if_expr
+    'if' sp expr sp? nl stmt*
+    (blank? 'elsif' sp expr sp? nl stmt*)*
+    (blank? 'else' sp? nl stmt*)?
+    blank? end_kw nl
   end
 
   rule simple_expr
