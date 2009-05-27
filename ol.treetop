@@ -31,14 +31,14 @@ grammar ObjLang
 
   # Expressions
   rule class_def
-    class_kw sp
+    'class' sp
     const_id (sp? '<' sp? const_id)? sp? nl
     (stmt / blank)*
     end_kw nl
   end
 
   rule meth_def
-    def_kw sp
+    'def' sp
     id sp? '(' ( sp? id ( sp? ',' sp? id )* )? sp? ')' nl
     (stmt / blank)*
     end_kw nl
@@ -57,12 +57,6 @@ grammar ObjLang
   end
 
   # Keywords
-  rule class_kw
-    'class'
-  end
-  rule def_kw
-    'def'
-  end
   rule end_kw
     'end'
   end
