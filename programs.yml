@@ -38,6 +38,19 @@
       x
     end
   end
+- |
+  x = 0
+- |
+  def f(x, y)
+    z = 0
+  end
+- |
+  x = 0
+  if x
+    10
+  else
+    20
+  end
 # failure cases
 #- |
 #  def f

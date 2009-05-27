@@ -30,7 +30,7 @@ grammar ObjLang
   end
 
   rule simple_expr
-    integer / varref
+    integer / assignment / varref
   end
 
   # Expressions
@@ -46,6 +46,10 @@ grammar ObjLang
     id sp? '(' ( sp? id ( sp? ',' sp? id )* )? sp? ')' nl
     (stmt / blank)*
     end_kw nl
+  end
+
+  rule assignment
+    varref sp? '=' sp? expr
   end
 
   rule integer
