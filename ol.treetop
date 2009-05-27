@@ -1,7 +1,13 @@
 # This is not yet complete
 grammar ObjLang
+  rule program
+    blank?
+    (top_stmt / blank)*
+    blank?
+  end
+
   rule top_stmt
-    blank? ( class_def / meth_def / stmt ) blank?
+    class_def / meth_def / stmt
   end
 
   rule stmt
