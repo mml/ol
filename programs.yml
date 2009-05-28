@@ -61,6 +61,16 @@
       100
     end
   end
+- |
+  if (false)
+    def f(x)
+      ((x))
+    end
+  else
+    def f(x)
+      ( ( ( 100 ) ) )
+    end
+  end
 # failure cases
 #- |
 #  def f

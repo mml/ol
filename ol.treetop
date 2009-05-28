@@ -26,7 +26,7 @@ grammar ObjLang
   end
 
   rule simple_expr
-    'true' / 'false' / 'nil' / integer / assignment / varref
+    'true' / 'false' / 'nil' / integer / assignment / varref / '(' sp? simple_expr sp? ')'
   end
 
   # Expressions
