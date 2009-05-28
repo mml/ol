@@ -71,6 +71,18 @@
       ( ( ( 100 ) ) )
     end
   end
+- |
+  x = 10
+  y = 20
+  if x == y
+    false
+  else
+    true
+  end
+- |
+  def f(a, b, c)
+    (a < b) && (b < c)
+  end
 # failure cases
 #- |
 #  def f

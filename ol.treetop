@@ -26,7 +26,15 @@ grammar ObjLang
   end
 
   rule simple_expr
+    atomic_expr sp? op sp? simple_expr / atomic_expr
+  end
+
+  rule atomic_expr
     'true' / 'false' / 'nil' / integer / assignment / varref / '(' sp? simple_expr sp? ')'
+  end
+
+  rule op
+    '+' / '-' / '*' / '/' / '<' / '>' / '<<' / '>>' / '<=' / '>=' / '==' / '&&' / '||'
   end
 
   # Expressions
