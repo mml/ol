@@ -30,7 +30,9 @@ grammar ObjLang
   end
 
   rule atomic_expr
-    send / 'true' / 'false' / 'nil' / integer / assignment / varref / '(' sp? simple_expr sp? ')'
+    (
+      message / 'true' / 'false' / 'nil' / integer / assignment / varref / '(' sp? simple_expr sp? ')'
+    ) ('.' message)*
   end
 
   rule op
@@ -52,8 +54,8 @@ grammar ObjLang
     end_kw nl
   end
 
-  rule send
-    (varref '.')? varref '(' ( sp? simple_expr ( sp? ',' sp? simple_expr)* )? sp? ')'
+  rule message
+    varref '(' ( sp? simple_expr ( sp? ',' sp? simple_expr)* )? sp? ')'
   end
 
   rule assignment

@@ -112,6 +112,19 @@
   end
   set(5)
   get() == 5
+- |
+  class K
+    def set(n)
+      $n = n
+    end
+  end
+  class L
+    def get()
+      $n
+    end
+  end
+  K.new().set(13)
+  L.new().get() == 13
 # failure cases
 #- |
 #  def f
