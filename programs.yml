@@ -83,6 +83,11 @@
   def f(a, b, c)
     (a < b) && (b < c)
   end
+- |
+  def f(a, b, c)
+    (a < b) && (b < c)
+  end
+  f(10, 20, 30) || f( 10+10, 10 + 11 , ( 11 + 12 ) ) && self.f(0,1,2)
 # failure cases
 #- |
 #  def f
