@@ -7,8 +7,8 @@ from Ruby we will take the following notions initially.
 - All objects belong to classes (distinct from io and JavaScript).
 - The only named unit of computation is a method (no unattached
   functions/subroutines).
-- The same identifier rules, including that classes/globals start with a capital
-  letter.
+- The same identifier rules, including that classes/constants start with a
+  capital letter.
 - @ and $ as scoping sigils
 - "Primitive" types: nil, true, false, Fixnums
 - the following forms
