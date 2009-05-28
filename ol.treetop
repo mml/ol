@@ -65,7 +65,7 @@ grammar ObjLang
   end
 
   rule varref
-    !'def' !'class' !'if' !'elsif' !'else' !'true' !'false' !'nil' !'end' id
+    !'def' !'class' !'if' !'elsif' !'else' !'true' !'false' !'nil' !'end' [$@]? id
   end
 
   # Keywords

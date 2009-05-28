@@ -97,6 +97,21 @@
     end
   end
   fib(33)
+- |
+  def set(n)
+    $foo = n
+  end
+  set(25)
+  $foo == 25
+- |
+  def set(n)
+    @n = n
+  end
+  def get()
+    @n
+  end
+  set(5)
+  get() == 5
 # failure cases
 #- |
 #  def f
