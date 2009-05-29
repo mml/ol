@@ -3,7 +3,7 @@ grammar ObjLang
   rule program
     blank?
     (class_def / stmt / blank)*
-    blank?
+    blank? <Program>
   end
 
   rule stmt
@@ -22,7 +22,7 @@ grammar ObjLang
     'if' sp expr sp? nl stmt*
     (blank? 'elsif' sp expr sp? nl stmt*)*
     (blank? 'else' sp? nl stmt*)?
-    blank? end_kw nl
+    blank? END nl
   end
 
   rule simple_expr
@@ -41,17 +41,21 @@ grammar ObjLang
 
   # Expressions
   rule class_def
-    'class' sp
+    CLASS sp
     const_id (sp? '<' sp? const_id)? sp? nl
+    class_body
+    END nl <ClassDef>
+  end
+
+  rule class_body
     (stmt / blank)*
-    end_kw nl
   end
 
   rule meth_def
-    'def' sp
+    DEF sp
     id sp? '(' ( sp? id ( sp? ',' sp? id )* )? sp? ')' nl
     (stmt / blank)*
-    end_kw nl
+    END nl
   end
 
   rule message
@@ -63,7 +67,7 @@ grammar ObjLang
   end
 
   rule integer
-    [0-9]+
+    [0-9]+ <Integer>
   end
 
   rule varref
@@ -71,26 +75,34 @@ grammar ObjLang
   end
 
   # Keywords
-  rule end_kw
+  rule CLASS
+    'class'
+  end
+
+  rule END
     'end'
+  end
+
+  rule DEF
+    'def'
   end
 
   # Identifiers
   rule const_id
-    [A-Z] [A-Za-z_]*
+    [A-Z] [A-Za-z_]* <Identifier>
   end
   rule id
-    [A-Za-z_]+
+    [A-Za-z_]+ <Identifier>
   end
 
   # Three different classes of whitespace
   rule sp
-    [ \t]+
+    [ \t]+ <Whitespace>
   end
   rule blank
-    [ \t\n]+
+    [ \t\n]+ <Whitespace>
   end
   rule nl
-    [\n]
+    [\n] <EndExpr>
   end
 end

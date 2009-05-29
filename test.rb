@@ -2,7 +2,9 @@
 require 'yaml'
 require 'rubygems'
 require 'treetop'
+
 Treetop.load 'ol'
+require 'lang'
 
 parser = ObjLangParser.new
 programs = YAML::load_file 'programs.yml'
