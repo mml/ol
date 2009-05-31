@@ -21,7 +21,9 @@ def main
   }
 
   puts "\n\ndeparse"
+  i = 0
   programs.each {|p|
+    i += 1
     if ast = parser.parse(p)
       a = run p
       b = run ast.deparse
@@ -29,7 +31,7 @@ def main
       if a == b
         print '.'
       else
-        puts("\n" + { :programs => [p, ast.deparse], :outputs => [a, b]}.to_yaml)
+        puts("\nfail #{i}\n" + { :programs => [p, ast.deparse], :outputs => [a, b]}.to_yaml)
         exit
       end
     else
