@@ -55,8 +55,12 @@ grammar ObjLang
   rule meth_def
     DEF sp
     id sp? '(' ( sp? id ( sp? ',' sp? id )* )? sp? ')' nl
+    meth_body
+    END nl <MethDef>
+  end
+
+  rule meth_body
     (stmt / blank)*
-    END nl
   end
 
   rule message

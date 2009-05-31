@@ -43,6 +43,14 @@ module ObjLang
 
     def name; const_id; end
   end
+
+  class MethDef < Node
+    def deparse
+      "def #{name.deparse}()\n#{meth_body.deparse}end\n"
+    end
+
+    def name; id; end
+  end
 end
 
 class Treetop::Runtime::SyntaxNode
