@@ -8,9 +8,10 @@ require 'lang'
 
 parser = ObjLangParser.new
 programs = YAML::load_file 'programs.yml'
+programs.map! {|p| p.to_s }
     
 puts 'parse'
-programs.map {|p| p.to_s}.each {|p|
+programs.each {|p|
   if parser.parse(p)
     print '.'
   else
