@@ -38,8 +38,10 @@ module ObjLang
 
   class ClassDef < Node
     def deparse
-      "class #{const_id.deparse}\n#{class_body.deparse}end\n"
+      "class #{name.deparse}\n#{class_body.deparse}end\n"
     end
+
+    def name; const_id; end
   end
 end
 
