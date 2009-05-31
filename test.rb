@@ -29,7 +29,8 @@ def main
       if a == b
         print '.'
       else
-        print 'x'
+        puts("\n" + { :programs => [p, ast.deparse], :outputs => [a, b]}.to_yaml)
+        exit
       end
     else
       print 'S'
