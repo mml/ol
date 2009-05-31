@@ -51,6 +51,15 @@ module ObjLang
 
     def name; id; end
   end
+  
+  class Assignment < Node
+    def deparse
+      "#{lhs.deparse} = #{rhs.deparse}\n"
+    end
+
+    def lhs; varref; end
+    def rhs; expr; end
+  end
 end
 
 class Treetop::Runtime::SyntaxNode
