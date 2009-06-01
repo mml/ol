@@ -83,16 +83,12 @@ module ObjLang
 
   class OpApp < Node
     def deparse
-      "#{rand1.deparse} #{rator.deparse} #{rand2.deparse}"
+      "#{rand1.deparse} #{rator.text_value} #{rand2.deparse}"
     end
 
     def rator; op; end
     def rand1; atomic_expr; end
     def rand2; simple_expr; end
-  end
-
-  class BinOp < Node
-    def deparse; text_value; end
   end
 end
 
