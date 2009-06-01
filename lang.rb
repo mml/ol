@@ -90,6 +90,14 @@ module ObjLang
     def rand1; atomic_expr; end
     def rand2; simple_expr; end
   end
+
+  class Parens < Node
+    def deparse
+      "(#{expr.deparse})"
+    end
+
+    def expr; simple_expr; end
+  end
 end
 
 class Treetop::Runtime::SyntaxNode

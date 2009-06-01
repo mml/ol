@@ -50,8 +50,12 @@ grammar ObjLang
 
   rule atomic_expr
     (
-      message / 'true' / 'false' / 'nil' / integer / assignment / varref / '(' sp? simple_expr sp? ')'
+      message / 'true' / 'false' / 'nil' / integer / assignment / varref / parens
     ) ('.' message)*
+  end
+
+  rule parens
+    '(' sp? simple_expr sp? ')' <Parens>
   end
 
   rule op
