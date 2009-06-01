@@ -25,8 +25,9 @@ The garbage collector will be a simple stop-and-copy.
 
 The implementation of the compiler will likely look like this:
 - Write a complete grammar in treetop[3]
-- Write an emitter that takes the IR returned from the treetop parser and
-  produces Ruby code.
+- Write a pass to regularize the treetop-produced parse tree (removing
+  whitespace and empty nodes).
+- Write an emitter that takes the massaged AST and produces Ruby code.
 - Write a harness that can take a bit of code, run it through a specified series
   of transforms (at this point this will just be the parse/deparse pair) and
   execute it, and compare the results with running the initial code under MRI.
