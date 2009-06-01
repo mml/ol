@@ -39,6 +39,7 @@
 - | 
   def f(x, y)
     if x
+      x+x
       y
     else
       x

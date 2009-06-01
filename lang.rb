@@ -1,3 +1,5 @@
+require 'ruby-debug'
+
 module ObjLang
   module Deparse
     def deparse
@@ -59,6 +61,38 @@ module ObjLang
 
     def lhs; varref; end
     def rhs; expr; end
+  end
+
+  class IfExpr < Node
+    def deparse
+      "if #{test.deparse}\n#{cons.deparse}\n#{rest.deparse}"
+    end
+
+    def test; expr; end
+    def cons; stmts; end
+    def rest; if_rest; end
+  end
+
+  class ElseExpr < Node
+    def deparse
+      "else\n#{alt.deparse}\nend\n"
+    end
+
+    def alt; stmts; end
+  end
+
+  class OpApp < Node
+    def deparse
+      "#{rand1.deparse} #{rator.deparse} #{rand2.deparse}"
+    end
+
+    def rator; op; end
+    def rand1; atomic_expr; end
+    def rand2; simple_expr; end
+  end
+
+  class BinOp < Node
+    def deparse; text_value; end
   end
 end
 

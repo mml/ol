@@ -20,14 +20,32 @@ grammar ObjLang
   end
 
   rule if_expr
-    'if' sp expr sp? nl stmt*
-    (blank? 'elsif' sp expr sp? nl stmt*)*
-    (blank? 'else' sp? nl stmt*)?
-    blank? END nl
+    'if' sp expr sp? nl stmts
+    blank? if_rest <IfExpr>
+  end
+
+  rule if_rest
+    elsif_expr / else_expr / (END nl)
+  end
+
+  rule elsif_expr
+    'elsif' sp expr sp? nl stmts if_rest
+  end
+
+  rule else_expr
+    'else' sp? nl stmts blank? END nl <ElseExpr>
+  end
+
+  rule stmts
+    stmt*
   end
 
   rule simple_expr
-    atomic_expr sp? op sp? simple_expr / atomic_expr
+    op_app / atomic_expr
+  end
+
+  rule op_app
+    atomic_expr sp? op sp? simple_expr <OpApp>
   end
 
   rule atomic_expr
@@ -37,7 +55,7 @@ grammar ObjLang
   end
 
   rule op
-    '+' / '-' / '*' / '/' / '<' / '>' / '<<' / '>>' / '<=' / '>=' / '==' / '&&' / '||'
+    '+' / '-' / '*' / '/' / '<' / '>' / '<<' / '>>' / '<=' / '>=' / '==' / '&&' / '||' <BinOp>
   end
 
   # Expressions
