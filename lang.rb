@@ -102,5 +102,7 @@ end
 
 class Treetop::Runtime::SyntaxNode
   include ObjLang::Deparse
+
+  attr_writer :elements
 end
 
