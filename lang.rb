@@ -4,7 +4,7 @@ module ObjLang
   module Deparse
     def deparse
       if elements
-        elements.map{|e| e.deparse}.join
+        elements.map(&:deparse).join
       else
         ''
       end
