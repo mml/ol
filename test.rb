@@ -5,6 +5,8 @@ require 'treetop'
 
 Treetop.load 'ol'
 require 'lang'
+require 'p1'
+require 'YAML'
 
 def main
   parser = ObjLangParser.new
@@ -25,8 +27,15 @@ def main
   programs.each {|p|
     i += 1
     if ast = parser.parse(p)
-      a = run p
-      b = run ast.deparse
+      begin
+        ast = Compiler::RegularizeTree.run(ast)
+        ast = Compiler::FlattenTree.run(ast)
+        a = run p
+        b = run ast.deparse
+      rescue NoMethodError
+        puts "\n" + YAML::dump([$!.message, ast.pretty_inspect, p, $!.backtrace.join("\n")])
+        return
+      end
 
       if a == b
         print '.'
