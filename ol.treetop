@@ -65,7 +65,7 @@ grammar ObjLang
   # Expressions
   rule class_def
     CLASS sp
-    const_id (sp? '<' sp? const_id)? sp? nl
+    name:const_id (sp? '<' sp? const_id)? sp? nl
     class_body
     END nl <ClassDef>
   end
