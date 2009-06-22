@@ -28,8 +28,8 @@ def main
     i += 1
     if ast = parser.parse(p)
       begin
-        ast = Compiler::RegularizeTree.run(ast)
-        ast = Compiler::FlattenTree.run(ast)
+        #ast = Compiler::RegularizeTree.run(ast)
+        #ast = Compiler::FlattenTree.run(ast)
         a = run p
         b = run ast.deparse
       rescue NoMethodError
