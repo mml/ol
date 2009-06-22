@@ -76,7 +76,7 @@ grammar ObjLang
 
   rule meth_def
     DEF sp
-    id sp? '(' ( sp? id ( sp? ',' sp? id )* )? sp? ')' nl
+    name:id sp? '(' formals:( sp? first:id rest:( sp? ',' sp? id )* )? sp? ')' nl
     meth_body
     END nl <MethDef>
   end

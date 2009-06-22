@@ -46,10 +46,16 @@ module ObjLang
 
   class MethDef < Node
     def deparse
-      "def #{name.deparse}()\n#{meth_body.deparse}end\n"
+      "def #{name.deparse}(#{formal_ids.map(&:deparse).join(',')})\n#{meth_body.deparse}end\n"
     end
 
-    def name; id; end
+    def formal_ids
+      if formals.empty?
+        []
+      else
+        [formals.first] + formals.rest.elements.map(&:id)
+      end
+    end
   end
   
   class Assignment < Node
