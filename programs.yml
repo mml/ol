@@ -4,6 +4,8 @@
   3
   4
 - |
+  1234 
+- |
   666
 - |
   class K
@@ -38,7 +40,7 @@
   end
 - | 
   def f(x, y)
-    if x
+    if x   
       x+x
       y
     else
@@ -103,7 +105,9 @@
       fib(n-1) + fib(n-2)
     end
   end
-  fib(33)
+  fib(10)
+- |
+  def fib(n); if (n<2);1;else;fib(n-1)+fib(n-2);end;end;fib(10)
 - |
   def set(n)
     $foo = n

@@ -2,60 +2,50 @@
 #  vim:sts=2:sw=2:
 grammar ObjLang
   rule program
-    blank?
-    (class_def / stmt / blank)*
-    blank? <Program>
+    stmt* <Program>
   end
 
   rule stmt
-    blank? ( compound_expr / simple_expr nl )
+    expr STMT_END
   end
 
   rule expr
-    compound_expr / simple_expr
-  end
-
-  rule compound_expr
-    meth_def / if_expr
+    blank (class_def / meth_def / if_expr / op_app / atomic_expr) sp?
   end
 
   rule if_expr
-    'if' sp expr sp? nl stmts
-    blank? if_rest <IfExpr>
+    IF sp test:expr STMT_END cons:stmt*
+    blank if_rest <IfExpr>
   end
 
   rule if_rest
-    elsif_expr / else_expr / (END nl)
+    elsif_expr / else_expr / END
   end
 
   rule elsif_expr
-    'elsif' sp expr sp? nl stmts if_rest
+    ELSIF sp expr STMT_END stmt* if_rest
   end
 
   rule else_expr
-    'else' sp? nl stmts blank? END nl <ElseExpr>
-  end
-
-  rule stmts
-    stmt*
-  end
-
-  rule simple_expr
-    op_app / atomic_expr
+    ELSE sp? STMT_END alt:stmt* blank END <ElseExpr>
   end
 
   rule op_app
-    atomic_expr sp? op sp? simple_expr <OpApp>
+    rand1:atomic_expr sp? op sp? rand2:expr <OpApp>
   end
 
   rule atomic_expr
-    (
-      message / 'true' / 'false' / 'nil' / integer / assignment / varref / parens
-    ) ('.' message)*
+    base:(
+      message / TRUE / FALSE / NIL / integer / assignment / varref / parens
+    ) message_chain?
+  end
+
+  rule message_chain
+    ( '.' message )+ <MessageChain>
   end
 
   rule parens
-    '(' sp? simple_expr sp? ')' <Parens>
+    '(' sp? expr ')' <Parens>
   end
 
   rule op
@@ -65,32 +55,24 @@ grammar ObjLang
   # Expressions
   rule class_def
     CLASS sp
-    name:const_id (sp? '<' sp? const_id)? sp? nl
-    class_body
-    END nl <ClassDef>
-  end
-
-  rule class_body
-    (stmt / blank)*
+    name:const_id (sp? '<' sp? const_id)? sp? STMT_END
+    body:stmt*
+    blank END <ClassDef>
   end
 
   rule meth_def
     DEF sp
-    name:id sp? '(' formals:( sp? first:id rest:( sp? ',' sp? id )* )? sp? ')' nl
-    meth_body
-    END nl <MethDef>
-  end
-
-  rule meth_body
-    (stmt / blank)*
+    name:id sp? '(' formals:( sp? first:id rest:( sp? ',' sp? id )* )? sp? ')' STMT_END
+    body:stmt*
+    blank END <MethDef>
   end
 
   rule message
-    method:varref '(' params:( sp? first:simple_expr rest:( sp? ',' sp? expr:simple_expr)* )? sp? ')' <Message>
+    method:varref '(' params:( sp? first:expr rest:( sp? ',' sp? expr)* )? sp? ')' <Message>
   end
 
   rule assignment
-    varref sp? '=' sp? expr <Assignment>
+    lhs:varref sp? '=' sp? rhs:expr <Assignment>
   end
 
   rule integer
@@ -98,7 +80,7 @@ grammar ObjLang
   end
 
   rule varref
-    !'def' !'class' !'if' !'elsif' !'else' !'true' !'false' !'nil' !'end' [$@]? id
+    !DEF !CLASS !IF !ELSIF !ELSE !TRUE !FALSE !NIL !END id
   end
 
   # Keywords
@@ -114,12 +96,36 @@ grammar ObjLang
     'def'
   end
 
+  rule IF
+    'if'
+  end
+
+  rule ELSIF
+    'elsif'
+  end
+
+  rule ELSE
+    'else'
+  end
+
+  rule TRUE
+    'true'
+  end
+
+  rule FALSE
+    'false'
+  end
+
+  rule NIL
+    'nil'
+  end
+
   # Identifiers
   rule const_id
     [A-Z] [A-Za-z_]* <Identifier>
   end
   rule id
-    [A-Za-z_]+ <Identifier>
+    [$@]? [A-Za-z_]+ <Identifier>
   end
 
   # Three different classes of whitespace
@@ -127,9 +133,9 @@ grammar ObjLang
     [ \t]+ <Whitespace>
   end
   rule blank
-    [ \t\n]+ <Whitespace>
+    [ \t\n]* <Whitespace>
   end
-  rule nl
-    [\n] <EndExpr>
+  rule STMT_END
+    [;\n] <EndExpr>
   end
 end

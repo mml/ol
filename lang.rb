@@ -11,42 +11,47 @@ module ObjLang
     end
   end
 
-  class Node < Treetop::Runtime::SyntaxNode
+  module Program
   end
 
-  class Program < Node
+  module MessageChain
+    def deparse
+      elements.map {|node|
+        '.' + node.message.deparse
+      }
+    end
   end
 
-  class EndExpr < Node
+  module EndExpr
     def deparse
       "\n"
     end
   end
 
-  class Integer < Node
+  module Integer
     def deparse
       text_value
     end
   end
 
-  class Identifier < Node
+  module Identifier
     def deparse
       text_value
     end
   end
 
-  class Whitespace < Node
+  module Whitespace
   end
 
-  class ClassDef < Node
+  module ClassDef
     def deparse
-      "class #{name.deparse}\n#{class_body.deparse}end\n"
+      "class #{name.deparse}\n#{body.deparse}end\n"
     end
   end
 
-  class MethDef < Node
+  module MethDef
     def deparse
-      "def #{name.deparse}(#{formal_ids.map(&:deparse).join(',')})\n#{meth_body.deparse}end\n"
+      "def #{name.deparse}(#{formal_ids.map(&:deparse).join(',')})\n#{body.deparse}end\n"
     end
 
     def formal_ids
@@ -58,7 +63,7 @@ module ObjLang
     end
   end
 
-  class Message < Node
+  module Message
     def deparse
       "#{method.deparse}(#{param_exprs.map(&:deparse).join(',')})"
     end
@@ -72,49 +77,34 @@ module ObjLang
     end
   end
   
-  class Assignment < Node
+  module Assignment
     def deparse
       "#{lhs.deparse} = #{rhs.deparse}\n"
     end
-
-    def lhs; varref; end
-    def rhs; expr; end
   end
 
-  class IfExpr < Node
+  module IfExpr
     def deparse
-      "if #{test.deparse}\n#{cons.deparse}\n#{rest.deparse}"
+      "if #{test.deparse}\n#{cons.deparse}\n#{if_rest.deparse}"
     end
-
-    def test; expr; end
-    def cons; stmts; end
-    def rest; if_rest; end
   end
 
-  class ElseExpr < Node
+  module ElseExpr
     def deparse
       "else\n#{alt.deparse}\nend\n"
     end
-
-    def alt; stmts; end
   end
 
-  class OpApp < Node
+  module OpApp
     def deparse
-      "#{rand1.deparse} #{rator.text_value} #{rand2.deparse}"
+      "#{rand1.deparse} #{op.text_value} #{rand2.deparse}"
     end
-
-    def rator; op; end
-    def rand1; atomic_expr; end
-    def rand2; simple_expr; end
   end
 
-  class Parens < Node
+  module Parens
     def deparse
       "(#{expr.deparse})"
     end
-
-    def expr; simple_expr; end
   end
 end
 
