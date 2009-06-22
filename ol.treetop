@@ -86,7 +86,7 @@ grammar ObjLang
   end
 
   rule message
-    varref '(' ( sp? simple_expr ( sp? ',' sp? simple_expr)* )? sp? ')'
+    method:varref '(' params:( sp? first:simple_expr rest:( sp? ',' sp? expr:simple_expr)* )? sp? ')' <Message>
   end
 
   rule assignment

@@ -57,6 +57,20 @@ module ObjLang
       end
     end
   end
+
+  class Message < Node
+    def deparse
+      "#{method.deparse}(#{param_exprs.map(&:deparse).join(',')})"
+    end
+
+    def param_exprs
+      if params.empty?
+        []
+      else
+        [params.first] + params.rest.elements.map(&:expr)
+      end
+    end
+  end
   
   class Assignment < Node
     def deparse
