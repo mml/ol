@@ -10,7 +10,7 @@ grammar ObjLang
   end
 
   rule expr
-    blank (class_def / meth_def / if_expr / op_app / atomic_expr) sp?
+    blank (op_app / class_def / meth_def / if_expr / atomic_expr) sp?
   end
   
   rule op_lhs

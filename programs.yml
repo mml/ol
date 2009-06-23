@@ -18,7 +18,8 @@
 - |
   if true; 5; else; 10; end
 - TODO: 1 + if true; 5; else; 10; end
-- TODO: if true; 5; else; 10; end + 1
+- |
+  if true; 5; else; 10; end + 1
 - |
   class K
   end
