@@ -12,6 +12,10 @@ grammar ObjLang
   rule expr
     blank (class_def / meth_def / if_expr / op_app / atomic_expr) sp?
   end
+  
+  rule op_lhs
+    blank (class_def / meth_def / if_expr / atomic_expr) sp?
+  end
 
   rule if_expr
     IF sp test:expr STMT_END cons:stmt*
@@ -31,12 +35,12 @@ grammar ObjLang
   end
 
   rule op_app
-    rand1:atomic_expr sp? op sp? rand2:expr <OpApp>
+    rand1:op_lhs sp? op sp? rand2:expr <OpApp>
   end
 
   rule atomic_expr
     base:(
-      message / TRUE / FALSE / NIL / integer / assignment / varref / parens
+      message / TRUE / FALSE / NIL / integer / assignment / varref / parens / array
     ) message_chain?
   end
 
@@ -46,6 +50,10 @@ grammar ObjLang
 
   rule parens
     '(' sp? expr ')' <Parens>
+  end
+
+  rule array
+    '[' expr ']'
   end
 
   rule op

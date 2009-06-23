@@ -11,14 +11,15 @@ require 'YAML'
 def main
   parser = ObjLangParser.new
   programs = YAML::load_file 'programs.yml'
-  programs.map! {|p| p.to_s }
-      
+
   puts 'parse'
   programs.each {|p|
-    if parser.parse(p)
-      print '.'
-    else
-      puts "failure: #{p}\n#{parser.failure_reason}"
+    if !skip? p
+      if parser.parse(p)
+        print '.'
+      else
+        puts "failure: #{p}\n#{parser.failure_reason}"
+      end
     end
   }
 
@@ -26,29 +27,42 @@ def main
   i = 0
   programs.each {|p|
     i += 1
-    if ast = parser.parse(p)
-      begin
-        #ast = Compiler::RegularizeTree.run(ast)
-        #ast = Compiler::FlattenTree.run(ast)
-        a = run p
-        b = run ast.deparse
-      rescue NoMethodError
-        puts "\n" + YAML::dump([$!.message, ast.pretty_inspect, p, $!.backtrace.join("\n")])
-        return
-      end
+    if !skip? p
+      if ast = parser.parse(p)
+        begin
+          #ast = Compiler::RegularizeTree.run(ast)
+          #ast = Compiler::FlattenTree.run(ast)
+          a = run p
+          b = run ast.deparse
+        rescue NoMethodError
+          puts "\n" + YAML::dump([$!.message, ast.pretty_inspect, p, $!.backtrace.join("\n")])
+          return
+        end
 
-      if a == b
-        print '.'
+        if a == b
+          print '.'
+        else
+          puts("\nfail #{i}\n" + { :programs => [p, ast.deparse], :outputs => [a, b]}.to_yaml)
+          exit
+        end
       else
-        puts("\nfail #{i}\n" + { :programs => [p, ast.deparse], :outputs => [a, b]}.to_yaml)
-        exit
+        print 'P'
       end
-    else
-      print 'S'
     end
   }
 
   puts ''
+end
+
+def skip? p
+  return false unless p.is_a? Hash
+
+  if p['TODO']
+    print 'T'
+  else
+    print 'S'
+  end
+  true
 end
 
 def run p
