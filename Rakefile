@@ -1,7 +1,3 @@
 task :test do
-  sh 'ruby test.rb'
-end
-
-task :repl do
-  sh 'irb -r repl'
+  sh 'ruby -r "test-driver" -e "TestDriver.new.run_tests"'
 end
