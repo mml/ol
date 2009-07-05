@@ -40,30 +40,34 @@ class Compiler
     if immediate? x
       emit "movl $#{immediate_rep x}, %eax"
     elsif primcall? x
-      case x.message
-      when 'succ'
-        emit_expr x.invocant
-        emit "addl $#{one}, %eax"
-      when 'pred'
-        emit_expr x.invocant
-        emit "subl $#{one}, %eax"
-      when 'nil?'
-        emit_expr x.invocant
-        emit "cmpl $#{NIL_REP}, %eax" # Compare EAX to nil
-        emit "movl $0, %eax" # Clear EAX (=> AL)
-        emit "sete %al"      # AL = 1 if the same, 0 if not
-        #emit "sall $7, %eax" # Shift left by 7 bits
-        emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
-      when 'zero?'
-        emit_expr x.invocant
-        emit "cmpl $#{zero}, %eax" # Compare EAX to 0
-        emit "movl $0, %eax" # Clear EAX (=> AL)
-        emit "sete %al"      # AL = 1 if the same, 0 if not
-        emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
-      when '!'
-        emit_expr x.invocant
-        emit "xorl $1, %eax"
-      end
+      emit_primitive_call x
+    end
+  end
+
+  def emit_primitive_call x
+    case x.message
+    when 'succ'
+      emit_expr x.invocant
+      emit "addl $#{one}, %eax"
+    when 'pred'
+      emit_expr x.invocant
+      emit "subl $#{one}, %eax"
+    when 'nil?'
+      emit_expr x.invocant
+      emit "cmpl $#{NIL_REP}, %eax" # Compare EAX to nil
+      emit "movl $0, %eax" # Clear EAX (=> AL)
+      emit "sete %al"      # AL = 1 if the same, 0 if not
+      #emit "sall $7, %eax" # Shift left by 7 bits
+      emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
+    when 'zero?'
+      emit_expr x.invocant
+      emit "cmpl $#{zero}, %eax" # Compare EAX to 0
+      emit "movl $0, %eax" # Clear EAX (=> AL)
+      emit "sete %al"      # AL = 1 if the same, 0 if not
+      emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
+    when '!'
+      emit_expr x.invocant
+      emit "xorl $1, %eax"
     end
   end
 
