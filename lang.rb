@@ -78,7 +78,7 @@ module ObjLang
 
   module Message
     def deparse
-      "#{method.deparse}(#{param_exprs.map(&:deparse).join(',')})"
+      "#{meth.deparse}(#{param_exprs.map(&:deparse).join(',')})"
     end
 
     def param_exprs

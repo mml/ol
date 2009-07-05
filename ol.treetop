@@ -76,7 +76,7 @@ grammar ObjLang
   end
 
   rule message
-    method:varref '(' params:( sp? first:expr rest:( sp? ',' sp? expr)* )? sp? ')' <Message>
+    meth:varref '(' params:( sp? first:expr rest:( sp? ',' sp? expr)* )? sp? ')' <Message>
   end
 
   rule assignment

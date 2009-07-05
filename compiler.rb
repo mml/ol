@@ -6,6 +6,7 @@ module AST
   FalseLiteral = :false
   NilLiteral   = :nil
   Integer      = Struct.new :value
+  MethodCall   = Struct.new :invocant, :message, :args
 end
 
 class Compiler
@@ -19,12 +20,30 @@ class Compiler
 
   def compile_program string
     stmts = make_ast(@parser.parse(string))
-    return_immediate stmts[0].expr
+    if stmts.length > 1
+      raise 'Too many statements.'
+    end
+    emit_expr stmts[0].expr
+    emit "ret"
   end
 
-  def return_immediate x
-    emit "movl $#{immediate_rep x}, %eax"
-    emit "ret"
+  def one
+    immediate_rep AST::Integer.new 1
+  end
+
+  def emit_expr x
+    if immediate? x
+      emit "movl $#{immediate_rep x}, %eax"
+    elsif primcall? x
+      case x.message
+      when 'succ'
+        emit_expr x.invocant
+        emit "addl $#{one}, %eax"
+      when 'pred'
+        emit_expr x.invocant
+        emit "subl $#{one}, %eax"
+      end
+    end
   end
 
   # Given a parse tree, emit an AST.
@@ -46,8 +65,18 @@ class Compiler
     when ObjLang::Statement
       AST::Statement.new(to_abstract e.expr.meat)
     when ObjLang::AtomicExpr
-      assert e.chain.empty?
-      to_abstract e.base
+      if e.chain.empty?
+        to_abstract e.base
+      else
+        messages = e.chain
+        messages.elements.reduce(to_abstract(e.base)) do |last,mess|
+          AST::MethodCall.new(
+            last,
+            mess.elements[1].meth.text_value,
+            []
+          )
+        end
+      end
     when ObjLang::TrueLiteral
       AST::TrueLiteral
     when ObjLang::FalseLiteral
@@ -58,6 +87,22 @@ class Compiler
       AST::Integer.new e.text_value.to_i
     else
       raise "Can't translate #{e}\n"
+    end
+  end
+
+  def immediate? x
+    case x
+    when AST::Integer, AST::TrueLiteral, AST::FalseLiteral, AST::NilLiteral
+      true
+    else
+      false
+    end
+  end
+
+  def primcall? x
+    case x
+    when AST::MethodCall; x.message =~ /^succ|pred$/
+    else;                 false
     end
   end
 

@@ -2,7 +2,23 @@ require 'compiler'
 require 'ruby-debug'
 
 class TestDriver
-  @@test_cases = [['42', '42'], ['0', '0'], ['-18', '-18'], ['false', 'false'], ['true', 'true'], ['nil', 'nil']]
+  @@test_cases = [
+    ['42', '42'],
+    ['0', '0'],
+    ['-18', '-18'],
+    ['false', 'false'],
+    ['true', 'true'],
+    ['nil', 'nil'],
+    ['9.succ()', '10'],
+    ['10.succ()', '11'],
+    ['-2.succ()', '-1'],
+    ['-1.succ()', '0'],
+    ['-1.succ().succ()', '1'],
+    ['0.succ().pred()', '0'],
+    ['1.pred()', '0'],
+    ['0.pred()', '-1'],
+    ['9.pred()', '8'],
+  ]
 
   def initialize
     @as = 'test.s'
@@ -12,6 +28,8 @@ class TestDriver
   end
 
   def run_tests
+    failures = []
+
     for source,expected in @@test_cases
       @f.truncate 0
       @f.seek 0
@@ -24,10 +42,16 @@ class TestDriver
       if (r = run) == expected
         print '.'
       else
-        raise "FAIL: #{r} != #{expected}"
+        print 'F'
+        failures.push [r,source,expected]
       end
     end
     puts
+
+    failures.each do |failure|
+      puts "'#{failure[0]}' != '#{failure[2]}'"
+      puts "  #{failure[1]}"
+    end
   end
 
   def write_prologue
