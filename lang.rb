@@ -26,6 +26,7 @@ module ObjLang
   module TrueLiteral; end
   module FalseLiteral; end
   module NilLiteral; end
+  module Character; end
 
   module MessageChain
     def deparse

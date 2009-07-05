@@ -40,7 +40,7 @@ grammar ObjLang
 
   rule atomic_expr
     base:(
-      message / TRUE / FALSE / NIL / integer / assignment / varref / parens / array
+      message / TRUE / FALSE / NIL / integer / character / assignment / varref / parens / array
     ) chain:message_chain? <AtomicExpr>
   end
 
@@ -81,6 +81,10 @@ grammar ObjLang
 
   rule assignment
     lhs:varref sp? '=' sp? rhs:expr <Assignment>
+  end
+
+  rule character
+    '?' chr:. <Character>
   end
 
   rule integer

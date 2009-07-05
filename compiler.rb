@@ -85,6 +85,8 @@ class Compiler
       AST::NilLiteral
     when ObjLang::Integer
       AST::Integer.new e.text_value.to_i
+    when ObjLang::Character
+      AST::Integer.new e.chr.text_value[0]
     else
       raise "Can't translate #{e}\n"
     end

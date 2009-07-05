@@ -18,6 +18,7 @@ class TestDriver
     ['1.pred()', '0'],
     ['0.pred()', '-1'],
     ['9.pred()', '8'],
+    ['?A', '65'],
   ]
 
   def initialize
