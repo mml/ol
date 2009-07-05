@@ -83,6 +83,8 @@ class TestDriver
   def run_tests
     failures = []
 
+    system 'gcc -O3 --omit-frame-pointer -c driver.c'
+
     for source,expected in @@test_cases
       begin
         @f.truncate 0
@@ -127,7 +129,7 @@ EOT
   end
 
   def link
-    system "gcc -O3 --omit-frame-pointer -o #{@exe} #{@as} driver.c"
+    system "gcc -o #{@exe} #{@as} driver.o"
   end
 
   def run
