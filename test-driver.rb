@@ -49,19 +49,23 @@ class TestDriver
     failures = []
 
     for source,expected in @@test_cases
-      @f.truncate 0
-      @f.seek 0
-      write_prologue
-      @c.compile_program source
-      write_epilogue
-      @f.flush
-      link
+      begin
+        @f.truncate 0
+        @f.seek 0
+        write_prologue
+        @c.compile_program source
+        write_epilogue
+        @f.flush
+        link
 
-      if (r = run) == expected
-        print '.'
-      else
-        print 'F'
-        failures.push [r,source,expected]
+        if (r = run) == expected
+          print '.'
+        else
+          print 'F'
+          failures.push [r,source,expected]
+        end
+      rescue
+        print 'P'
       end
     end
     puts
