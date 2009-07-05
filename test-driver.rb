@@ -1,7 +1,7 @@
 require 'compiler'
 
 class TestDriver
-  @@test_cases = [['42', '42'], ['0', '0'], ['-18', '-18']]
+  @@test_cases = [[42, '42'], [0, '0'], [-18, '-18'], [false, 'false'], [true, 'true'], [nil, 'nil']]
 
   def initialize
     @as = 'test.s'
@@ -15,7 +15,7 @@ class TestDriver
       @f.truncate 0
       @f.seek 0
       write_prologue
-      @c.compile_program source.to_i
+      @c.compile_program source
       write_epilogue
       @f.flush
       link
