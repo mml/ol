@@ -20,10 +20,10 @@ class TestDriver
       @f.flush
       link
 
-      if run == expected
+      if (r = run) == expected
         print '.'
       else
-        raise "FAIL"
+        raise "FAIL: #{r} != #{expected}"
       end
     end
     puts
