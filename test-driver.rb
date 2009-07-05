@@ -1,7 +1,8 @@
 require 'compiler'
+require 'ruby-debug'
 
 class TestDriver
-  @@test_cases = [[42, '42'], [0, '0'], [-18, '-18'], [false, 'false'], [true, 'true'], [nil, 'nil']]
+  @@test_cases = [['42', '42'], ['0', '0'], ['-18', '-18'], ['false', 'false'], ['true', 'true'], ['nil', 'nil']]
 
   def initialize
     @as = 'test.s'

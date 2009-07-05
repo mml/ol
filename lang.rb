@@ -1,4 +1,6 @@
-require 'ruby-debug'
+require 'rubygems'
+require 'treetop'
+Treetop.load 'ol'
 
 module ObjLang
   module Deparse
@@ -13,6 +15,17 @@ module ObjLang
 
   module Program
   end
+
+  module Statement
+  end
+  
+  module Expr
+  end
+
+  module AtomicExpr; end
+  module TrueLiteral; end
+  module FalseLiteral; end
+  module NilLiteral; end
 
   module MessageChain
     def deparse

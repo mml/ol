@@ -2,15 +2,15 @@
 #  vim:sts=2:sw=2:
 grammar ObjLang
   rule program
-    stmt* <Program>
+    stmt* expr? <Program>
   end
 
   rule stmt
-    expr STMT_END
+    expr STMT_END <Statement>
   end
 
   rule expr
-    blank (op_app / class_def / meth_def / if_expr / atomic_expr) sp?
+    blank meat:(op_app / class_def / meth_def / if_expr / atomic_expr) sp? <Expr>
   end
   
   rule op_lhs
@@ -41,7 +41,7 @@ grammar ObjLang
   rule atomic_expr
     base:(
       message / TRUE / FALSE / NIL / integer / assignment / varref / parens / array
-    ) message_chain?
+    ) chain:message_chain? <AtomicExpr>
   end
 
   rule message_chain
@@ -84,7 +84,7 @@ grammar ObjLang
   end
 
   rule integer
-    [0-9]+ <Integer>
+    '-'? [0-9]+ <Integer>
   end
 
   rule varref
@@ -117,15 +117,15 @@ grammar ObjLang
   end
 
   rule TRUE
-    'true'
+    'true' <TrueLiteral>
   end
 
   rule FALSE
-    'false'
+    'false' <FalseLiteral>
   end
 
   rule NIL
-    'nil'
+    'nil' <NilLiteral>
   end
 
   # Identifiers
