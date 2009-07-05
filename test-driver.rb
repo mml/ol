@@ -3,12 +3,15 @@ require 'ruby-debug'
 
 class TestDriver
   @@test_cases = [
+    # fixnum literals
     ['42', '42'],
     ['0', '0'],
     ['-18', '-18'],
+    # other literals
     ['false', 'false'],
     ['true', 'true'],
     ['nil', 'nil'],
+    # succ and pred
     ['9.succ()', '10'],
     ['10.succ()', '11'],
     ['-2.succ()', '-1'],
@@ -18,7 +21,9 @@ class TestDriver
     ['1.pred()', '0'],
     ['0.pred()', '-1'],
     ['9.pred()', '8'],
+    # character literals
     ['?A', '65'],
+    # nil?, !, zero?
     ['9.nil?()', 'false'],
     ['nil.nil?()', 'true'],
     ['!true', 'false'],
@@ -30,6 +35,7 @@ class TestDriver
     ['-1.succ().zero?()', 'true'],
     ['1.pred().zero?()', 'true'],
     ['0.succ().zero?()', 'false'],
+    ['!-1.succ().zero?()', 'false'],
   ]
 
   def initialize

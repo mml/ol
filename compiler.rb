@@ -10,8 +10,9 @@ module AST
 end
 
 class Compiler
-  @@BOOL_TAG = 0b0011_1110
-  @@NIL      = 0b0010_1111
+  BOOL_TAG  = 0b0011_1110
+  NIL_REP   = 0b0010_1111
+  WORD_SIZE = 4
 
   def initialize( o = STDOUT )
     @out = o
@@ -35,10 +36,6 @@ class Compiler
     immediate_rep AST::Integer.new 0
   end
 
-  def nil_rep
-    immediate_rep AST::NilLiteral
-  end
-
   def emit_expr x
     if immediate? x
       emit "movl $#{immediate_rep x}, %eax"
@@ -52,17 +49,17 @@ class Compiler
         emit "subl $#{one}, %eax"
       when 'nil?'
         emit_expr x.invocant
-        emit "cmpl $#{nil_rep}, %eax" # Compare EAX to nil
+        emit "cmpl $#{NIL_REP}, %eax" # Compare EAX to nil
         emit "movl $0, %eax" # Clear EAX (=> AL)
         emit "sete %al"      # AL = 1 if the same, 0 if not
         #emit "sall $7, %eax" # Shift left by 7 bits
-        emit "orl $#{@@BOOL_TAG}, %eax" # Tag as boolean
+        emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
       when 'zero?'
         emit_expr x.invocant
         emit "cmpl $#{zero}, %eax" # Compare EAX to 0
         emit "movl $0, %eax" # Clear EAX (=> AL)
         emit "sete %al"      # AL = 1 if the same, 0 if not
-        emit "orl $#{@@BOOL_TAG}, %eax" # Tag as boolean
+        emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
       when '!'
         emit_expr x.invocant
         emit "xorl $1, %eax"
@@ -145,11 +142,11 @@ class Compiler
     when AST::Integer
       x.value << 2
     when AST::TrueLiteral
-      @@BOOL_TAG | 0b1
+      BOOL_TAG | 0b1 # FIXME: I think I'm setting the wrong bit.
     when AST::FalseLiteral
-      @@BOOL_TAG | 0b0
+      BOOL_TAG | 0b0
     when AST::NilLiteral
-      @@NIL
+      NIL_REP
     end
   end
 
