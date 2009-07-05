@@ -14,7 +14,7 @@ grammar ObjLang
   end
   
   rule op_lhs
-    blank (class_def / meth_def / if_expr / atomic_expr) sp?
+    blank meat:(class_def / meth_def / if_expr / atomic_expr) sp?
   end
 
   rule if_expr
@@ -61,7 +61,7 @@ grammar ObjLang
   end
 
   rule op
-    '+' / '-' / '*' / '/' / '<' / '>' / '<<' / '>>' / '<=' / '>=' / '==' / '&&' / '||'
+    '+' / '-' / '*' / '/' / '<=' / '>=' / '<<' / '>>' / '<' / '>' / '==' / '&&' / '||'
   end
 
   # Expressions

@@ -13,6 +13,7 @@ class Compiler
   BOOL_TAG  = 0b0011_1110
   NIL_REP   = 0b0010_1111
   WORD_SIZE = 4
+  FIXNUM_SHIFT = 2
 
   def initialize( o = STDOUT )
     @out = o
@@ -24,7 +25,7 @@ class Compiler
     if stmts.length > 1
       raise 'Too many statements.'
     end
-    emit_expr stmts[0].expr
+    emit_expr stmts[0].expr, -4
     emit "ret"
   end
 
@@ -36,39 +37,81 @@ class Compiler
     immediate_rep AST::Integer.new 0
   end
 
-  def emit_expr x
+  def emit_expr x, si
     if immediate? x
       emit "movl $#{immediate_rep x}, %eax"
     elsif primcall? x
-      emit_primitive_call x
+      emit_primitive_call x, si
     end
   end
 
-  def emit_primitive_call x
+  def emit_primitive_call x, si
     case x.message
     when 'succ'
-      emit_expr x.invocant
+      emit_expr x.invocant, si
       emit "addl $#{one}, %eax"
     when 'pred'
-      emit_expr x.invocant
+      emit_expr x.invocant, si
       emit "subl $#{one}, %eax"
     when 'nil?'
-      emit_expr x.invocant
-      emit "cmpl $#{NIL_REP}, %eax" # Compare EAX to nil
-      emit "movl $0, %eax" # Clear EAX (=> AL)
-      emit "sete %al"      # AL = 1 if the same, 0 if not
-      #emit "sall $7, %eax" # Shift left by 7 bits
-      emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
+      emit_expr x.invocant, si
+      emit_compare "$#{NIL_REP}", 'e'
     when 'zero?'
-      emit_expr x.invocant
-      emit "cmpl $#{zero}, %eax" # Compare EAX to 0
-      emit "movl $0, %eax" # Clear EAX (=> AL)
-      emit "sete %al"      # AL = 1 if the same, 0 if not
-      emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
+      emit_expr x.invocant, si
+      emit_compare "$#{zero}", 'e'
     when '!'
-      emit_expr x.invocant
+      emit_expr x.invocant, si
       emit "xorl $1, %eax"
+    when '+'
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit "addl #{si}(%esp), %eax"
+    when '-'
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit "subl #{si}(%esp), %eax"
+    when '*'
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit "sarl $#{FIXNUM_SHIFT}, %eax"
+      emit "imull #{si}(%esp), %eax"
+    when '=='
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit_compare "#{si}(%esp)", 'e'
+    when '<'
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit_compare "#{si}(%esp)", 'l'
+    when '<='
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit_compare "#{si}(%esp)", 'le'
+    when '>'
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit_compare "#{si}(%esp)", 'g'
+    when '>='
+      emit_expr x.args[0], si
+      emit "movl %eax, #{si}(%esp)"
+      emit_expr x.invocant, si - WORD_SIZE
+      emit_compare "#{si}(%esp)", 'ge'
     end
+  end
+
+  def emit_compare rand, flags
+    emit "cmpl #{rand}, %eax"
+    emit "movl $0, %eax"
+    emit "set#{flags} %al"
+    #emit "sall $7, %eax" # Shift left by 7 bits
+    emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
   end
 
   # Given a parse tree, emit an AST.
@@ -120,7 +163,16 @@ class Compiler
       AST::Integer.new e.text_value.to_i
     when ObjLang::Character
       AST::Integer.new e.chr.text_value[0]
+    when ObjLang::OpApp
+      AST::MethodCall.new(
+        to_abstract(e.rand1.meat),
+        e.op.text_value,
+        [to_abstract(e.rand2)]
+      )
+    when ObjLang::Parens
+      to_abstract(e.expr)
     else
+      debugger
       raise "Can't translate #{e}\n"
     end
   end
@@ -136,7 +188,7 @@ class Compiler
 
   def primcall? x
     case x
-    when AST::MethodCall; x.message =~ /^succ|pred|nil\?|zero\?|!$/
+    when AST::MethodCall; x.message =~ /^succ|pred|nil\?|zero\?|!|\+|-|==|<|>|<=|>=|\*$/
     else;                 false
     end
   end
