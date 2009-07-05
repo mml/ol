@@ -31,6 +31,14 @@ class Compiler
     immediate_rep AST::Integer.new 1
   end
 
+  def zero
+    immediate_rep AST::Integer.new 0
+  end
+
+  def nil_rep
+    immediate_rep AST::NilLiteral
+  end
+
   def emit_expr x
     if immediate? x
       emit "movl $#{immediate_rep x}, %eax"
@@ -42,6 +50,22 @@ class Compiler
       when 'pred'
         emit_expr x.invocant
         emit "subl $#{one}, %eax"
+      when 'nil?'
+        emit_expr x.invocant
+        emit "cmpl $#{nil_rep}, %eax" # Compare EAX to nil
+        emit "movl $0, %eax" # Clear EAX (=> AL)
+        emit "sete %al"      # AL = 1 if the same, 0 if not
+        #emit "sall $7, %eax" # Shift left by 7 bits
+        emit "orl $#{@@BOOL_TAG}, %eax" # Tag as boolean
+      when 'zero?'
+        emit_expr x.invocant
+        emit "cmpl $#{zero}, %eax" # Compare EAX to 0
+        emit "movl $0, %eax" # Clear EAX (=> AL)
+        emit "sete %al"      # AL = 1 if the same, 0 if not
+        emit "orl $#{@@BOOL_TAG}, %eax" # Tag as boolean
+      when '!'
+        emit_expr x.invocant
+        emit "xorl $1, %eax"
       end
     end
   end
@@ -64,6 +88,8 @@ class Compiler
     case e
     when ObjLang::Statement
       AST::Statement.new(to_abstract e.expr.meat)
+    when ObjLang::Expr
+      to_abstract e.meat
     when ObjLang::AtomicExpr
       if e.chain.empty?
         to_abstract e.base
@@ -77,6 +103,12 @@ class Compiler
           )
         end
       end
+    when ObjLang::UnaryOp
+      AST::MethodCall.new(
+        to_abstract(e.elements[1]),
+        e.elements[0].text_value,
+        []
+      )
     when ObjLang::TrueLiteral
       AST::TrueLiteral
     when ObjLang::FalseLiteral
@@ -103,7 +135,7 @@ class Compiler
 
   def primcall? x
     case x
-    when AST::MethodCall; x.message =~ /^succ|pred$/
+    when AST::MethodCall; x.message =~ /^succ|pred|nil\?|zero\?|!$/
     else;                 false
     end
   end

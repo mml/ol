@@ -10,7 +10,7 @@ grammar ObjLang
   end
 
   rule expr
-    blank meat:(op_app / class_def / meth_def / if_expr / atomic_expr) sp? <Expr>
+    blank meat:(op_app / unary_op / class_def / meth_def / if_expr / atomic_expr) sp? <Expr>
   end
   
   rule op_lhs
@@ -36,6 +36,10 @@ grammar ObjLang
 
   rule op_app
     rand1:op_lhs sp? op sp? rand2:expr <OpApp>
+  end
+
+  rule unary_op
+    '!' expr <UnaryOp>
   end
 
   rule atomic_expr
@@ -76,7 +80,7 @@ grammar ObjLang
   end
 
   rule message
-    meth:varref '(' params:( sp? first:expr rest:( sp? ',' sp? expr)* )? sp? ')' <Message>
+    meth:([a-z] [A-Za-z0-9_?!]*) '(' params:( sp? first:expr rest:( sp? ',' sp? expr)* )? sp? ')' <Message>
   end
 
   rule assignment

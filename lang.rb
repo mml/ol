@@ -115,6 +115,8 @@ module ObjLang
     end
   end
 
+  module UnaryOp; end
+
   module Parens
     def deparse
       "(#{expr.deparse})"

@@ -19,6 +19,17 @@ class TestDriver
     ['0.pred()', '-1'],
     ['9.pred()', '8'],
     ['?A', '65'],
+    ['9.nil?()', 'false'],
+    ['nil.nil?()', 'true'],
+    ['!true', 'false'],
+    ['!false', 'true'],
+    ['0.zero?()', 'true'],
+    ['1.zero?()', 'false'],
+    ['-1.zero?()', 'false'],
+    ['!1.zero?()', 'true'],
+    ['-1.succ().zero?()', 'true'],
+    ['1.pred().zero?()', 'true'],
+    ['0.succ().zero?()', 'false'],
   ]
 
   def initialize
