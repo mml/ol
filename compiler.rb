@@ -116,9 +116,10 @@ class Compiler
 
   # Given a parse tree, emit an AST.
   def make_ast p
-    p.elements.select do |e|
-      e.kind_of? ObjLang::Statement or e.kind_of? ObjLang::Expr
-    end.map do |e|
+    top = p.stmts.elements
+    top += [p.expr] unless p.expr.empty?
+
+    top.map do |e|
       case e
       when ObjLang::Statement
         to_abstract e
