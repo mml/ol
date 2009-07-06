@@ -85,6 +85,8 @@ class TestDriver
 
     system 'gcc -O3 --omit-frame-pointer -c driver.c'
 
+    pass = 0
+
     for source,expected in @@test_cases
       begin
         @f.truncate 0
@@ -97,18 +99,28 @@ class TestDriver
 
         if (r = run) == expected
           print '.'
+          pass += 1
         else
           print 'F'
           failures.push [r,source,expected]
         end
-      rescue
-        print 'P'
+      rescue => e
+        print 'E'
+        failures.push [e.to_s, source]
       end
     end
     puts
 
+    printf "%d/%d passed (%.0f%%)\n",
+      pass, @@test_cases.count, 100 * pass / @@test_cases.count
+
     failures.each do |failure|
-      puts "'#{failure[0]}' != '#{failure[2]}'"
+      case failure.length
+      when 3
+        puts "'#{failure[0]}' != '#{failure[2]}'"
+      when 2
+        puts failure[0]
+      end
       puts "  #{failure[1]}"
     end
   end
