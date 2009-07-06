@@ -88,7 +88,7 @@ class Compiler
   end
 
   def compile_program string
-    expr = make_ast(@parser.parse(string).exprs)
+    expr = make_seq(@parser.parse(string).exprs)
     emit_expr expr, -4, Env.new
     emit 'ret'
   end
@@ -214,17 +214,17 @@ class Compiler
   end
 
   # Given a parse tree, emit an AST.
-  def make_ast top
-    exprs = []
-    until top.empty?
-      a = to_abstract top.shift
+  def make_seq pexprs
+    sexprs = []
+    until pexprs.empty?
+      a = to_abstract pexprs.shift
       if a.kind_of? Proc
-        a = a.call make_ast(top)
+        a = a.call make_seq(pexprs)
         top = []
       end
-      exprs.push a
+      sexprs.push a
     end
-    AST::Seq.new exprs
+    AST::Seq.new sexprs
   end
 
   def to_abstract e
@@ -277,8 +277,8 @@ class Compiler
     when ObjLang::IfExpr
       AST::If.new(
         to_abstract(e.test),
-        make_ast(e.cons.elements.map &:expr),
-        make_ast(e.if_rest.alt.elements.map &:expr)
+        make_seq(e.cons.elements.map &:expr),
+        make_seq(e.if_rest.alt.elements.map &:expr)
       )
     else
       debugger
