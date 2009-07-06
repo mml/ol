@@ -220,7 +220,7 @@ class Compiler
       a = to_abstract pexprs.shift
       if a.kind_of? Proc
         a = a.call make_seq(pexprs)
-        top = []
+        pexprs = []
       end
       sexprs.push a
     end
