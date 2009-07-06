@@ -8,6 +8,13 @@ module AST
     def let?; false; end
     def varref?; false; end
     def if?; false; end
+    def prog?; false; end
+    def def?; false; end
+  end
+
+  class Prog < Struct.new :labels, :expr
+    include Node
+    def prog?; true; end
   end
 
   module ImmediateNode
@@ -47,6 +54,10 @@ module AST
   class If < Struct.new :test, :cons, :alt
     include Node
     def if?; true; end
+  end
+  class Def < Struct.new :formals, :body
+    include Node
+    def def?; true; end
   end
 end
 
@@ -88,8 +99,7 @@ class Compiler
   end
 
   def compile_program string
-    expr = make_seq(@parser.parse(string).exprs)
-    emit_expr expr, -4, Env.new
+    emit_expr make_prog(@parser.parse(string).exprs), -4, Env.new
     emit 'ret'
   end
 
@@ -120,6 +130,8 @@ class Compiler
       emit "movl #{env[x.name]}(%esp), %eax"
     when x.if?
       emit_if x.test, x.cons, x.alt, si, env
+    when x.prog?
+      emit_expr x.expr, si, env
     else
       debugger
       puts 9
@@ -211,6 +223,10 @@ class Compiler
     emit "set#{flags} %al"
     #emit "sall $7, %eax" # Shift left by 7 bits
     emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
+  end
+
+  def make_prog pexprs
+    AST::Prog.new [], make_seq(pexprs)
   end
 
   # Given a parse tree, emit an AST.
