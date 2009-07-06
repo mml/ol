@@ -7,6 +7,7 @@ module AST
     def seq?; false; end
     def let?; false; end
     def varref?; false; end
+    def if?; false; end
   end
 
   module ImmediateNode
@@ -43,6 +44,10 @@ module AST
     include Node
     def seq?; true; end
   end
+  class If < Struct.new :test, :cons, :alt
+    include Node
+    def if?; true; end
+  end
 end
 
 class Env
@@ -71,6 +76,7 @@ class Env
 end
 
 class Compiler
+  @@n = 0
   BOOL_TAG  = 0b0011_1110
   NIL_REP   = 0b0010_1111
   WORD_SIZE = 4
@@ -112,6 +118,8 @@ class Compiler
       emit_expr x.body, si - WORD_SIZE, nenv
     when x.varref?
       emit "movl #{env[x.name]}(%esp), %eax"
+    when x.if?
+      emit_if x.test, x.cons, x.alt, si, env
     else
       debugger
       puts 9
@@ -177,6 +185,24 @@ class Compiler
       emit_expr x.invocant, si - WORD_SIZE, env
       emit_compare "#{si}(%esp)", 'ge'
     end
+  end
+
+  def emit_if test, cons, alt, si, env
+    l0 = unique_label
+    l1 = unique_label
+    emit_expr test, si, env
+    emit "cmpl $#{immediate_rep AST::FalseLiteral}, %eax"
+    emit "je #{l0}"
+    emit_expr cons, si, env
+    emit "jmp #{l1}"
+    emit "#{l0}:"
+    emit_expr alt, si, env
+    emit "#{l1}:"
+  end
+
+  def unique_label
+    @@n += 1
+    "__L#{@@n}"
   end
 
   def emit_compare rand, flags
@@ -248,6 +274,12 @@ class Compiler
       end
     when ObjLang::VarRef
       AST::VarRef.new e.text_value
+    when ObjLang::IfExpr
+      AST::If.new(
+        to_abstract(e.test),
+        make_ast(e.cons.elements.map &:expr),
+        make_ast(e.if_rest.alt.elements.map &:expr)
+      )
     else
       debugger
       raise "Can't translate #{e}\n"

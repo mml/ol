@@ -71,12 +71,18 @@ class TestDriver
     ['false==0', 'false'],
     ['true==1', 'false'],
     ['false==false', 'true'],
+    # Assignment
     ['x=1; x+1', '2'],
     ['foo=186; foo+1', '187'],
     ['x=5; y=10; x+y', '15'],
     ['x=5; y=x+1; z=x*y; z*2', '60'],
     ['t=true; f=false; t==f', 'false'],
     ['x=10; y = x + 100; 100 > y', 'false'],
+    # Conditionals
+    ['if 0 < 5; nil; else; 20; end', 'nil'],
+    ['x=1; y=x+1; z=x+y; if x <= y; z; else; x; end', '3'],
+    ['if false; 1; else; 0; end', '0'],
+    #['if nil; false; else; true; end', 'true'],
   ]
 
   def initialize
