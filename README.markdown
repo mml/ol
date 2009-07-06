@@ -5,7 +5,7 @@ This x86-targeting compiler for a Ruby-like language is under construction, but
 partially works.
 
 Files
-=====
+-----
 
     Rakefile            Instructions for rake(1).
     README              This file
@@ -17,14 +17,14 @@ Files
 
 To see stuff happen, run
 
-  rake test
+    rake test
 
-then have a look at test-driver.rb.
+then have a look at `test-driver.rb`.
 
 Language
-========
+--------
 
-The language is a simplified subset of Ruby.  A complete PEG[1] will follow, but
+The language is a simplified subset of Ruby.  A complete [PEG][1] will follow, but
 from Ruby we will take the following notions initially.
 
 - All values are objects.
@@ -47,10 +47,10 @@ from Ruby we will take the following notions initially.
   - ()s on method defs and calls are not, for now, optional
 
 Implementation
-==============
+--------------
 
 The implementation plan is a variation on http://is.gd/1osYC
-- Write a rough grammar in treetop[3]
+- Write a rough grammar in [treetop][3]
 - Start by writing enough of a compiler to emit fixnums
   - Then add other immediate values (true, false, nil)
   - Then unary and binary primitives (!, +, *, ==, etc.)
@@ -75,22 +75,24 @@ The implementation plan is a variation on http://is.gd/1osYC
   - Garbage collector
     - Probably stop-and-copy
 
-Primary long-term goals for the compiler:
+Long-term goals
+---------------
 - Reliable and correct
 - High usability.  In particular, top-notch error mesages.
 - Produces fast, space-efficient code
 
 Anticipated Improvements
-  Compiler
+------------------------
+### Compiler
     - Optimizations
-  Language
+### Language
     - lambda and blocks
     - Strings
     - Arrays
-    - all of Ruby (use Markus Liedl's full Ruby grammar[2]?)
-  Runtime
+    - all of Ruby (use [Markus Liedl's full Ruby grammar][2]?)
+### Runtime
     - A better garbage collector
 
-[1] http://en.wikipedia.org/wiki/Parsing_expression_grammar
-[2] http://rubyforge.org/projects/ruby-tp-dw-gram/
-[3] http://treetop.rubyforge.org/
+[1]: http://en.wikipedia.org/wiki/Parsing_expression_grammar
+[2]: http://rubyforge.org/projects/ruby-tp-dw-gram/
+[3]: http://treetop.rubyforge.org/
