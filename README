@@ -1,10 +1,28 @@
+Summary
+=======
+
 This x86-targeting compiler for a Ruby-like language is under construction, but
-partially works.  See test-driver.rb for a sample of programs it can compile,
-and run 
+partially works.
 
-    rake test
+Files
+=====
 
-to see it compile and execute these on your machine.
+    Rakefile            Instructions for rake(1).
+    README              This file
+    compiler.rb         Parse tree -> AST pass, and AST -> assembly.
+    driver.c            C runtime support
+    lang.rb             Parse tree support classes
+    ol.treetop          Grammar definition
+    test-driver.rb      List of tests and support functions for running them
+
+To see stuff happen, run
+
+  rake test
+
+then have a look at test-driver.rb.
+
+Language
+========
 
 The language is a simplified subset of Ruby.  A complete PEG[1] will follow, but
 from Ruby we will take the following notions initially.
@@ -28,7 +46,8 @@ from Ruby we will take the following notions initially.
 - syntax restrictions from Ruby
   - ()s on method defs and calls are not, for now, optional
 
-The garbage collector will be a simple stop-and-copy.
+Implementation
+==============
 
 The implementation plan is a variation on http://is.gd/1osYC
 - Write a rough grammar in treetop[3]
@@ -54,6 +73,7 @@ The implementation plan is a variation on http://is.gd/1osYC
   - Then runtime error checking and safer prims
   - Register allocation and other "don't be dumb" optimizations.
   - Garbage collector
+    - Probably stop-and-copy
 
 Primary long-term goals for the compiler:
 - Reliable and correct
