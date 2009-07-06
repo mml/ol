@@ -14,6 +14,14 @@ module ObjLang
   end
 
   module Program
+    def exprs
+      stmts.elements.map(&:expr) +
+        if expr.empty?
+          []
+        else
+          [expr]
+        end
+    end
   end
 
   module Statement
@@ -27,6 +35,7 @@ module ObjLang
   module FalseLiteral; end
   module NilLiteral; end
   module Character; end
+  module VarRef; end
 
   module MessageChain
     def deparse

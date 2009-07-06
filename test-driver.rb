@@ -71,6 +71,12 @@ class TestDriver
     ['false==0', 'false'],
     ['true==1', 'false'],
     ['false==false', 'true'],
+    ['x=1; x+1', '2'],
+    ['foo=186; foo+1', '187'],
+    ['x=5; y=10; x+y', '15'],
+    ['x=5; y=x+1; z=x*y; z*2', '60'],
+    ['t=true; f=false; t==f', 'false'],
+    ['x=10; y = x + 100; 100 > y', 'false'],
   ]
 
   def initialize

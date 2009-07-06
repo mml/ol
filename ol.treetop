@@ -84,7 +84,7 @@ grammar ObjLang
   end
 
   rule assignment
-    lhs:varref sp? '=' sp? rhs:expr <Assignment>
+    lhs:id sp? '=' sp? rhs:expr <Assignment>
   end
 
   rule character
@@ -96,7 +96,7 @@ grammar ObjLang
   end
 
   rule varref
-    !DEF !CLASS !IF !ELSIF !ELSE !TRUE !FALSE !NIL !END id
+    !DEF !CLASS !IF !ELSIF !ELSE !TRUE !FALSE !NIL !END id <VarRef>
   end
 
   # Keywords

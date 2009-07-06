@@ -1,11 +1,41 @@
 require 'lang'
 
 module AST
+  # TODO: give all of these some shared methods like 'primcall?', 'assignment?',
+  # etc.
   TrueLiteral  = :true
   FalseLiteral = :false
   NilLiteral   = :nil
   Integer      = Struct.new :value
   MethodCall   = Struct.new :invocant, :message, :args
+  Let          = Struct.new :lhs, :rhs, :body
+  VarRef       = Struct.new :name
+  Seq          = Struct.new :exprs
+end
+
+class Env
+  def initialize *args
+    if args.empty?
+      @env = {}
+    else
+      @env = args[0]
+    end
+  end
+
+  def extend hash
+    nenv = Env.new @env.clone
+    hash.each do |k,v|
+      nenv.env[k] = v
+    end
+    nenv
+  end
+
+  def [] k
+    @env[k]
+  end
+
+  protected
+  attr_accessor :env
 end
 
 class Compiler
@@ -20,12 +50,9 @@ class Compiler
   end
 
   def compile_program string
-    exprs = make_ast(@parser.parse(string))
-    if exprs.length > 1
-      raise 'Too many statements.'
-    end
-    emit_expr exprs[0], -4
-    emit "ret"
+    expr = make_ast(@parser.parse(string).exprs)
+    emit_expr expr, -4, Env.new
+    emit 'ret'
   end
 
   def one
@@ -36,71 +63,85 @@ class Compiler
     immediate_rep AST::Integer.new 0
   end
 
-  def emit_expr x, si
+  def emit_expr x, si, env
     if immediate? x
       emit "movl $#{immediate_rep x}, %eax"
     elsif primcall? x
-      emit_primitive_call x, si
+      emit_primitive_call x, si, env
+    elsif x.kind_of? AST::Seq
+      x.exprs.each do |e|
+        emit_expr e, si, env
+      end
+    elsif x.kind_of? AST::Let
+      emit_expr x.rhs, si, env
+      emit "movl %eax, #{si}(%esp)"
+      nenv = env.extend x.lhs => si
+      emit_expr x.body, si - WORD_SIZE, nenv
+    elsif x.kind_of? AST::VarRef
+      emit "movl #{env[x.name]}(%esp), %eax"
+    else
+      debugger
+      puts 9
     end
   end
 
-  def emit_primitive_call x, si
+  def emit_primitive_call x, si, env
     case x.message
     when 'succ'
-      emit_expr x.invocant, si
+      emit_expr x.invocant, si, env
       emit "addl $#{one}, %eax"
     when 'pred'
-      emit_expr x.invocant, si
+      emit_expr x.invocant, si, env
       emit "subl $#{one}, %eax"
     when 'nil?'
-      emit_expr x.invocant, si
+      emit_expr x.invocant, si, env
       emit_compare "$#{NIL_REP}", 'e'
     when 'zero?'
-      emit_expr x.invocant, si
+      emit_expr x.invocant, si, env
       emit_compare "$#{zero}", 'e'
     when '!'
-      emit_expr x.invocant, si
+      emit_expr x.invocant, si, env
       emit "xorl $1, %eax"
     when '+'
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit "addl #{si}(%esp), %eax"
     when '-'
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit "subl #{si}(%esp), %eax"
     when '*'
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit "sarl $#{FIXNUM_SHIFT}, %eax"
       emit "imull #{si}(%esp), %eax"
     when '=='
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit_compare "#{si}(%esp)", 'e'
     when '<'
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit_compare "#{si}(%esp)", 'l'
     when '<='
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit_compare "#{si}(%esp)", 'le'
     when '>'
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit_compare "#{si}(%esp)", 'g'
     when '>='
-      emit_expr x.args[0], si
+      emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
-      emit_expr x.invocant, si - WORD_SIZE
+      emit_expr x.invocant, si - WORD_SIZE, env
       emit_compare "#{si}(%esp)", 'ge'
     end
   end
@@ -114,18 +155,17 @@ class Compiler
   end
 
   # Given a parse tree, emit an AST.
-  def make_ast p
-    top = p.stmts.elements
-    top += [p.expr] unless p.expr.empty?
-
-    top.map do |e|
-      case e
-      when ObjLang::Statement
-        to_abstract e.expr
-      when ObjLang::Expr
-        to_abstract e
+  def make_ast top
+    exprs = []
+    until top.empty?
+      a = to_abstract top.shift
+      if a.kind_of? Proc
+        a = a.call make_ast(top)
+        top = []
       end
+      exprs.push a
     end
+    AST::Seq.new exprs
   end
 
   def to_abstract e
@@ -169,6 +209,12 @@ class Compiler
       )
     when ObjLang::Parens
       to_abstract(e.expr)
+    when ObjLang::Assignment
+      lambda do |body|
+        AST::Let.new e.lhs.text_value, to_abstract(e.rhs), body
+      end
+    when ObjLang::VarRef
+      AST::VarRef.new e.text_value
     else
       debugger
       raise "Can't translate #{e}\n"
