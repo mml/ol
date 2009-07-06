@@ -1,7 +1,6 @@
 require 'lang'
 
 module AST
-  Statement    = Struct.new :expr
   TrueLiteral  = :true
   FalseLiteral = :false
   NilLiteral   = :nil
@@ -21,11 +20,11 @@ class Compiler
   end
 
   def compile_program string
-    stmts = make_ast(@parser.parse(string))
-    if stmts.length > 1
+    exprs = make_ast(@parser.parse(string))
+    if exprs.length > 1
       raise 'Too many statements.'
     end
-    emit_expr stmts[0].expr, -4
+    emit_expr exprs[0], -4
     emit "ret"
   end
 
@@ -122,17 +121,15 @@ class Compiler
     top.map do |e|
       case e
       when ObjLang::Statement
-        to_abstract e
+        to_abstract e.expr
       when ObjLang::Expr
-        AST::Statement.new(to_abstract e.meat)
+        to_abstract e
       end
     end
   end
 
   def to_abstract e
     case e
-    when ObjLang::Statement
-      AST::Statement.new(to_abstract e.expr.meat)
     when ObjLang::Expr
       to_abstract e.meat
     when ObjLang::AtomicExpr
