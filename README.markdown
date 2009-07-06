@@ -50,6 +50,7 @@ Implementation
 --------------
 
 The implementation plan is a variation on http://is.gd/1osYC
+
 - Write a rough grammar in [treetop][3]
 - Start by writing enough of a compiler to emit fixnums
   - Then add other immediate values (true, false, nil)
@@ -84,14 +85,14 @@ Long-term goals
 Anticipated Improvements
 ------------------------
 ### Compiler
-    - Optimizations
+- Optimizations
 ### Language
-    - lambda and blocks
-    - Strings
-    - Arrays
-    - all of Ruby (use [Markus Liedl's full Ruby grammar][2]?)
+- lambda and blocks
+- Strings
+- Arrays
+- all of Ruby (use [Markus Liedl's full Ruby grammar][2]?)
 ### Runtime
-    - A better garbage collector
+- A better garbage collector
 
 [1]: http://en.wikipedia.org/wiki/Parsing_expression_grammar
 [2]: http://rubyforge.org/projects/ruby-tp-dw-gram/
