@@ -1,16 +1,48 @@
 require 'lang'
 
 module AST
-  # TODO: give all of these some shared methods like 'primcall?', 'assignment?',
-  # etc.
-  TrueLiteral  = :true
-  FalseLiteral = :false
-  NilLiteral   = :nil
-  Integer      = Struct.new :value
-  MethodCall   = Struct.new :invocant, :message, :args
-  Let          = Struct.new :lhs, :rhs, :body
-  VarRef       = Struct.new :name
-  Seq          = Struct.new :exprs
+  module Node
+    def immediate?; false; end
+    def primcall?; false; end
+    def seq?; false; end
+    def let?; false; end
+    def varref?; false; end
+  end
+
+  module ImmediateNode
+    include Node
+    def immediate?; true; end
+  end
+  class SingletonNode
+    include ImmediateNode
+  end
+
+  TrueLiteral  = SingletonNode.new
+  FalseLiteral = SingletonNode.new
+  NilLiteral   = SingletonNode.new
+
+  class Integer < Struct.new :value
+    include ImmediateNode
+    def immediate?; true; end
+  end
+  class MethodCall < Struct.new :invocant, :message, :args
+    include Node
+    def primcall?
+      message =~ /^succ|pred|nil\?|zero\?|!|\+|-|==|<|>|<=|>=|\*$/
+    end
+  end
+  class Let < Struct.new :lhs, :rhs, :body
+    include Node
+    def let?; true; end
+  end
+  class VarRef < Struct.new :name
+    include Node
+    def varref?; true; end
+  end
+  class Seq < Struct.new :exprs
+    include Node
+    def seq?; true; end
+  end
 end
 
 class Env
@@ -64,20 +96,21 @@ class Compiler
   end
 
   def emit_expr x, si, env
-    if immediate? x
+    case
+    when x.immediate?
       emit "movl $#{immediate_rep x}, %eax"
-    elsif primcall? x
+    when x.primcall?
       emit_primitive_call x, si, env
-    elsif x.kind_of? AST::Seq
+    when x.seq?
       x.exprs.each do |e|
         emit_expr e, si, env
       end
-    elsif x.kind_of? AST::Let
+    when x.let?
       emit_expr x.rhs, si, env
       emit "movl %eax, #{si}(%esp)"
       nenv = env.extend x.lhs => si
       emit_expr x.body, si - WORD_SIZE, nenv
-    elsif x.kind_of? AST::VarRef
+    when x.varref?
       emit "movl #{env[x.name]}(%esp), %eax"
     else
       debugger
@@ -218,22 +251,6 @@ class Compiler
     else
       debugger
       raise "Can't translate #{e}\n"
-    end
-  end
-
-  def immediate? x
-    case x
-    when AST::Integer, AST::TrueLiteral, AST::FalseLiteral, AST::NilLiteral
-      true
-    else
-      false
-    end
-  end
-
-  def primcall? x
-    case x
-    when AST::MethodCall; x.message =~ /^succ|pred|nil\?|zero\?|!|\+|-|==|<|>|<=|>=|\*$/
-    else;                 false
     end
   end
 
