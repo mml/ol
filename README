@@ -1,4 +1,10 @@
-A basic x86-targeting compiler for a very simple object-oriented language.
+This x86-targeting compiler for a Ruby-like language is under construction, but
+partially works.  See test-driver.rb for a sample of programs it can compile,
+and run 
+
+    rake test
+
+to see it compile and execute these on your machine.
 
 The language is a simplified subset of Ruby.  A complete PEG[1] will follow, but
 from Ruby we will take the following notions initially.
@@ -15,6 +21,7 @@ from Ruby we will take the following notions initially.
   - class...end (with '< Foo' superclass specification)
   - def...end
   - if...else...elsif...end and variants
+  - while...end
   - assignment
   - method calls
   - syntactic sugar to convert infix operators to method calls: + - * / << >> ==
@@ -23,18 +30,30 @@ from Ruby we will take the following notions initially.
 
 The garbage collector will be a simple stop-and-copy.
 
-The implementation of the compiler will likely look like this:
-- Write a complete grammar in treetop[3]
-- Write a pass to regularize the treetop-produced parse tree (removing
-  whitespace and empty nodes).
-- Write an emitter that takes the massaged AST and produces Ruby code.
-- Write a harness that can take a bit of code, run it through a specified series
-  of transforms (at this point this will just be the parse/deparse pair) and
-  execute it, and compare the results with running the initial code under MRI.
-- Begin building a test suite.
-- Write program regularization/language simplification/analysis passes.
-- Write register allocator.
-- Write code emitter.
+The implementation plan is a variation on http://is.gd/1osYC
+- Write a rough grammar in treetop[3]
+- Start by writing enough of a compiler to emit fixnums
+  - Then add other immediate values (true, false, nil)
+  - Then unary and binary primitives (!, +, *, ==, etc.)
+  - Then single assignment of variables
+  - Then conditionals
+  - Then heap-allocation
+    - This implies strings, arrays and certain primitives thereupon
+  - Then method definition and invocation
+    - This will include proper scoping for method-local variables
+  - Then complex literals (e.g., [1,2,3])
+  - Then multiple assignment (boxing and unboxing).
+  - Then proper tail calls
+  - Then lambda {}.
+    - As a syntactic form, at this point, rather than as generalized support for
+      blocks.
+  - Then a rewriting pass that:
+    - Gives all variables unique names
+    - Translates looping constructs into other forms.
+  - Then classes and inheritance.
+  - Then runtime error checking and safer prims
+  - Register allocation and other "don't be dumb" optimizations.
+  - Garbage collector
 
 Primary long-term goals for the compiler:
 - Reliable and correct
