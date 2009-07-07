@@ -61,31 +61,6 @@ module AST
   end
 end
 
-class Env
-  def initialize *args
-    if args.empty?
-      @env = {}
-    else
-      @env = args[0]
-    end
-  end
-
-  def extend hash
-    nenv = Env.new @env.clone
-    hash.each do |k,v|
-      nenv.env[k] = v
-    end
-    nenv
-  end
-
-  def [] k
-    @env[k]
-  end
-
-  protected
-  attr_accessor :env
-end
-
 class Compiler
   @@n = 0
   BOOL_TAG  = 0b0011_1110
@@ -99,7 +74,7 @@ class Compiler
   end
 
   def compile_program string
-    emit_expr make_prog(@parser.parse(string).exprs), -4, Env.new
+    emit_expr make_prog(@parser.parse(string).exprs), -4, {}
     emit 'ret'
   end
 
@@ -124,7 +99,7 @@ class Compiler
     when x.let?
       emit_expr x.rhs, si, env
       emit "movl %eax, #{si}(%esp)"
-      nenv = env.extend x.lhs => si
+      nenv = env.merge x.lhs => si
       emit_expr x.body, si - WORD_SIZE, nenv
     when x.varref?
       emit "movl #{env[x.name]}(%esp), %eax"
