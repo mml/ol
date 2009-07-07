@@ -39,6 +39,9 @@ module AST
       message =~ /^succ|pred|nil\?|zero\?|!|\+|-|==|<|>|<=|>=|\*$/
     end
   end
+  class LabelCall < Struct.new :label, :args
+    include Node
+  end
   class Let < Struct.new :lhs, :rhs, :body
     include Node
     def let?; true; end
@@ -55,9 +58,74 @@ module AST
     include Node
     def if?; true; end
   end
-  class Def < Struct.new :formals, :body
+  class Def < Struct.new :name, :formals, :body
     include Node
     def def?; true; end
+  end
+end
+
+class Array
+  def map2
+    as,bs = [],[]
+    each do |elt|
+      a,b = yield elt
+      as.push a
+      bs.push b
+    end
+    return as, bs
+  end
+end
+
+class LiftProcedure
+  def rewrite_program p
+    labels, expr = rewrite_expr p.expr
+    AST::Prog.new labels, expr
+  end
+
+  # Given an expr, returns a rewritten expr and a hash of label,def pairs
+  def rewrite_expr e
+    case e
+    when AST::Def
+      labels, body = rewrite_expr e.body
+      return  labels.merge(e.name => AST::Def.new(e.name, e.formals, body)),
+              AST::NilLiteral
+    when AST::MethodCall
+      # XXX Ignoring the invocant for now.
+      if e.primcall?
+        labels, invocant = rewrite_expr e.invocant
+      else
+        labels = {}
+      end
+      labelses, args = e.args.map2 {|arg| rewrite_expr arg}
+      labels = labelses.reduce(labels, &:merge)
+      # XXX This semantic check probably belongs up when we build the AST.
+      if e.primcall?
+        return  labels, AST::MethodCall.new(invocant, e.message, args)
+      else
+        return  labels, AST::LabelCall.new(e.message, args)
+      end
+    when AST::Let
+      rhs_labels, rhs = rewrite_expr e.rhs
+      body_labels, body = rewrite_expr e.body
+      return  rhs_labels.merge(body_labels),
+              AST::Let.new(e.lhs, rhs, body)
+    when AST::Seq
+      labelses, exprs = e.exprs.map2 {|expr| rewrite_expr expr}
+      return  labelses.reduce({}, &:merge),
+              AST::Seq.new(exprs)
+    when AST::If
+      test_labels, test = rewrite_expr e.test
+      cons_labels, cons = rewrite_expr e.cons
+      alt_labels, alt   = rewrite_expr e.alt
+      return  test_labels.merge(cons_labels).merge(alt_labels),
+              AST::If.new(test, cons, alt)
+    when AST::ImmediateNode, AST::VarRef
+      return {}, e
+    when AST::Node
+      return {}, e
+    else
+      debugger
+    end
   end
 end
 
@@ -74,7 +142,17 @@ class Compiler
   end
 
   def compile_program string
-    emit_expr make_prog(@parser.parse(string).exprs), -4, {}
+    p = LiftProcedure.new.rewrite_program(
+      make_prog(@parser.parse(string).exprs))
+
+    p.labels.each {|label,fn|
+      emit_label label
+      emit_proc fn.formals, fn.body, -4, {}
+    }
+
+    # Program body
+    emit_label '_ol_entry' # XXX This should probably be a param.
+    emit_expr p, -4, {}
     emit 'ret'
   end
 
@@ -107,10 +185,30 @@ class Compiler
       emit_if x.test, x.cons, x.alt, si, env
     when x.prog?
       emit_expr x.expr, si, env
+    when x.kind_of?(AST::LabelCall)
+      nsi = si - WORD_SIZE
+      x.args.each do |arg|
+        emit_expr arg, nsi, env
+        emit "movl %eax, #{nsi}(%esp)"
+        nsi -= WORD_SIZE
+      end
+      emit "subl $#{-si - WORD_SIZE}, %esp"
+      emit "call #{x.label}"
+      emit "addl $#{-si - WORD_SIZE}, %esp"
     else
       debugger
       puts 9
     end
+  end
+
+  def emit_proc formals, body, si, env
+    # This is a bit ugly.  -Matt
+    formals.each do |formal|
+      env[formal] = si
+      si -= 4
+    end
+    emit_expr body, si, env
+    emit 'ret'
   end
 
   def emit_primitive_call x, si, env
@@ -182,14 +280,18 @@ class Compiler
     emit "je #{l0}"
     emit_expr cons, si, env
     emit "jmp #{l1}"
-    emit "#{l0}:"
+    emit_label l0
     emit_expr alt, si, env
-    emit "#{l1}:"
+    emit_label l1
   end
 
   def unique_label
     @@n += 1
     "__L#{@@n}"
+  end
+
+  def emit_label l
+    @out.puts "#{l}:"
   end
 
   def emit_compare rand, flags
@@ -270,6 +372,18 @@ class Compiler
         to_abstract(e.test),
         make_seq(e.cons.elements.map &:expr),
         make_seq(e.if_rest.alt.elements.map &:expr)
+      )
+    when ObjLang::MethDef
+      AST::Def.new(
+        e.name.text_value,
+        e.formal_ids.map(&:text_value),
+        make_seq(e.body.elements.map &:expr)
+      )
+    when ObjLang::Message
+      AST::MethodCall.new(
+        nil,
+        e.meth.text_value,
+        e.param_exprs.map {|param| to_abstract param }
       )
     else
       debugger

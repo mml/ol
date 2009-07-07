@@ -83,6 +83,44 @@ class TestDriver
     ['x=1; y=x+1; z=x+y; if x <= y; z; else; x; end', '3'],
     ['if false; 1; else; 0; end', '0'],
     #['if nil; false; else; true; end', 'true'],
+    # Procedures
+    ['def f(); 31337; end; f()', '31337'],
+    ['def f(x); x.succ(); end; f(50)', '51'],
+    ['def fib(n); if n < 2; 1; else; fib(n-1)+fib(n-2); end; end; fib(10)', '89'],
+    ['def f(x,y); if x == 0; y; else; f(x-1,y+1); end; end; f(10,20)', '30'],
+    ['def f(x,y,z); if x == 0; g(y,z); else; f(x-1,y+1,z); end; end; def g(y,z); if y == 0; z; else; f(y,-1,z+1); end; end; f(20,30,50)', '100'],
+    ['def mult(a,b)
+        accum(a,b,0)
+      end
+      def accum(a,b,x)
+        if a == 0
+          x
+        else
+          accum(a-1,b,x+b)
+        end
+      end
+      mult(633,23)', '14559'],
+    ['def mult(a,b)
+        accum(a,b,0)
+      end
+      def accum(a,b,x)
+        if a == 0
+          x
+        else
+          accum(a-1,b,x+b)
+        end
+      end
+      def pow(a,b)
+        accup(a,b,1)
+      end
+      def accup(a,b,x)
+        if a == 0
+          x
+        else
+          accup(a-1,b,mult(x,b))
+        end
+      end
+      pow(10,2)', '1024'],
   ]
 
   def initialize
@@ -114,11 +152,11 @@ class TestDriver
           pass += 1
         else
           print 'F'
-          failures.push [r,source,expected]
+          failures.push [r,source,expected,`cat test.s`]
         end
       rescue => e
         print 'E'
-        failures.push [e.to_s, source]
+        failures.push [e, source]
       end
     end
     puts
@@ -128,10 +166,12 @@ class TestDriver
 
     failures.each do |failure|
       case failure.length
-      when 3
+      when 4
         puts "'#{failure[0]}' != '#{failure[2]}'"
+        puts failure[3]
       when 2
         puts failure[0]
+        puts failure[0].backtrace
       end
       puts "  #{failure[1]}"
     end
@@ -142,7 +182,6 @@ class TestDriver
 	.text
 	.align 4,0x90
 .globl _ol_entry
-_ol_entry:
 EOT
   end
 
