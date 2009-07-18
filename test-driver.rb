@@ -110,6 +110,64 @@ class TestDriver
           accum(a-1,b,x+b)
         end
       end
+      a=2
+      a=mult(a,a)
+      a=mult(a,a)
+      a=mult(a,a)
+      a=mult(a,a)' , '65536'],
+    ['def mult(a,b)
+        accum(a,b,0)
+      end
+      def accum(a,b,x)
+        if a == 0
+          x
+        else
+          accum(a-1,b,x+b)
+        end
+      end
+      a=mult(mult(mult(2,2),mult(2,2)),mult(mult(2,2),mult(2,2)))' , '256'],
+      [:todo, 'def mult(a,b)
+          accum(a,b,0)
+        end
+        def accum(a,b,x)
+          if a == 0
+            x
+          else
+            accum(a-1,b,x+b)
+          end
+        end
+        mult(
+          mult(
+            mult(
+              mult(2,2),
+              mult(2,2)
+            ),
+            mult(
+              mult(2,2),
+              mult(2,2)
+            )
+          ),
+          mult(
+            mult(
+              mult(2,2),
+              mult(2,2)
+            ),
+            mult(
+              mult(2,2),
+              mult(2,2)
+            )
+          )
+        )','65536'],
+    ['def mult(a,b)
+        accum(a,b,0)
+      end
+      def accum(a,b,x)
+        if a == 0
+          x
+        else
+          accum(a-1,b,x+b)
+        end
+      end
       def pow(a,b)
         accup(a,b,1)
       end
