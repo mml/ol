@@ -82,7 +82,7 @@ class TestDriver
     ['if 0 < 5; nil; else; 20; end', 'nil'],
     ['x=1; y=x+1; z=x+y; if x <= y; z; else; x; end', '3'],
     ['if false; 1; else; 0; end', '0'],
-    #['if nil; false; else; true; end', 'true'],
+    [:skip, 'if nil; false; else; true; end', 'true'],
     # Procedures
     ['def f(); 31337; end; f()', '31337'],
     ['def f(x); x.succ(); end; f(50)', '51'],
@@ -136,8 +136,22 @@ class TestDriver
     system 'gcc -O3 --omit-frame-pointer -c driver.c'
 
     pass = 0
+    skip = 0
+    unexpected = 0
+    todo = 0
 
-    for source,expected in @@test_cases
+    for flag,source,expected in @@test_cases
+      if flag.is_a? Symbol
+        if flag == :skip
+          skip += 1
+          print 'S'
+          next
+        end
+      else
+        expected=source
+        source=flag
+      end
+
       begin
         @f.truncate 0
         @f.seek 0
@@ -145,24 +159,42 @@ class TestDriver
         @c.compile_program source
         write_epilogue
         @f.flush
-        link
+        link_out = link #FIXME: Need to emit this with failure messages
 
         if (r = run) == expected
-          print '.'
-          pass += 1
+          if flag == :todo
+            print '!'
+            unexpected += 1
+          else
+            print '.'
+            pass += 1
+          end
         else
-          print 'F'
-          failures.push [r,source,expected,`cat test.s`]
+          if flag == :todo
+            print 'T'
+            todo += 1
+          else
+            print 'F'
+            failures.push [r,source,expected,`cat test.s`]
+          end
         end
       rescue => e
-        print 'E'
-        failures.push [e, source]
+        if flag == :todo
+          print 'T'
+          todo += 1
+        else
+          print 'E'
+          failures.push [e, source]
+        end
       end
     end
     puts
 
     printf "%d/%d passed (%.0f%%)\n",
       pass, @@test_cases.count, 100 * pass / @@test_cases.count
+    printf "%d to do tests unexpectedly passed!", unexpected if unexpected > 0
+    printf "%d to do\n", todo if todo > 0
+    printf "%d skipped\n", skip if skip > 0
 
     failures.each do |failure|
       case failure.length
@@ -192,10 +224,10 @@ EOT
   end
 
   def link
-    system "gcc -o #{@exe} #{@as} driver.o"
+    `gcc -o #{@exe} #{@as} driver.o 2>&1`.chomp
   end
 
   def run
-    `./#{@exe}`.chomp
+    `./#{@exe} 2>&1`.chomp
   end
 end
