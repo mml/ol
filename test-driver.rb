@@ -1,5 +1,8 @@
+#!/usr/bin/env ruby
+
 require 'compiler'
 require 'ruby-debug'
+require 'getoptlong'
 
 class TestDriver
   @@test_cases = [
@@ -291,4 +294,26 @@ EOT
   def run
     `./#{@exe} 2>&1`.chomp
   end
+end
+
+if __FILE__ == $0
+  opts = GetoptLong.new(
+    [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
+  )
+
+  driver = TestDriver.new
+
+  opts.each do |opt, arg|
+    case opt
+    when '--help'
+      puts <<-"EOT"
+        Usage: #{$0} [OPTION]
+
+          -h, --help                   Show this message.
+      EOT
+      exit 1
+    end
+  end
+
+  driver.run_tests
 end
