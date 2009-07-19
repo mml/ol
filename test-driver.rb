@@ -187,11 +187,14 @@ class TestDriver
     [:todo, 'Array.new().push(1).push(2)', '[1,2]'],
   ]
 
+  attr_accessor :todo_only
+
   def initialize
     @as = 'test.s'
     @exe = 'test'
     @f = File.open @as, 'w'
     @c = Compiler.new @f
+    todo_only = false
   end
 
   def run_tests
@@ -204,7 +207,8 @@ class TestDriver
     unexpected = 0
     todo = 0
 
-    for flag,source,expected in @@test_cases
+    cases = todo_only ? @@test_cases.select {|c| :todo == c[0]} : @@test_cases
+    for flag,source,expected in cases
       if flag.is_a? Symbol
         if flag == :skip
           skip += 1
@@ -255,7 +259,7 @@ class TestDriver
     puts
 
     printf "%d/%d passed (%.0f%%)\n",
-      pass, @@test_cases.count, 100 * pass / @@test_cases.count
+      pass, cases.count, 100 * pass / cases.count
     printf "%d to do tests unexpectedly passed!", unexpected if unexpected > 0
     printf "%d to do\n", todo if todo > 0
     printf "%d skipped\n", skip if skip > 0
@@ -298,7 +302,8 @@ end
 
 if __FILE__ == $0
   opts = GetoptLong.new(
-    [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
+    [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+    [ '--todo', '-t', GetoptLong::NO_ARGUMENT ]
   )
 
   driver = TestDriver.new
@@ -310,8 +315,11 @@ if __FILE__ == $0
         Usage: #{$0} [OPTION]
 
           -h, --help                   Show this message.
+          -t, --todo                   Run only TODO tests.
       EOT
       exit 1
+    when '--todo'
+      driver.todo_only = true
     end
   end
 
