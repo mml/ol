@@ -7,7 +7,7 @@ partially works.
 Files
 -----
 
-    Rakefile            Instructions for rake(1).
+    Makefile            Instructions for make(1).
     README              This file
     compiler.rb         Parse tree -> AST pass, and AST -> assembly.
     driver.c            C runtime support
@@ -17,7 +17,7 @@ Files
 
 To see stuff happen, run
 
-    rake test
+    make test
 
 then have a look at `test-driver.rb`.
 

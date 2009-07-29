@@ -1,4 +1,5 @@
 require 'lang'
+require 'runtime'
 
 module AST
   module Node
@@ -130,11 +131,8 @@ class LiftProcedure
 end
 
 class Compiler
+  include Runtime
   @@n = 0
-  BOOL_TAG  = 0b0011_1110
-  NIL_REP   = 0b0010_1111
-  WORD_SIZE = 4
-  FIXNUM_SHIFT = 2
 
   def initialize( o = STDOUT )
     @out = o
@@ -227,7 +225,7 @@ class Compiler
       emit_compare "$#{zero}", 'e'
     when '!'
       emit_expr x.invocant, si, env
-      emit "xorl $1, %eax"
+      emit "xorl $#{1 << BOOL_SHIFT}, %eax"
     when '+'
       emit_expr x.args[0], si, env
       emit "movl %eax, #{si}(%esp)"
@@ -298,7 +296,7 @@ class Compiler
     emit "cmpl #{rand}, %eax"
     emit "movl $0, %eax"
     emit "set#{flags} %al"
-    #emit "sall $7, %eax" # Shift left by 7 bits
+    emit "sall $#{BOOL_SHIFT}, %eax" # Shift left by 7 bits
     emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
   end
 
@@ -394,11 +392,11 @@ class Compiler
   def immediate_rep x
     case x
     when AST::Integer
-      x.value << 2
+      x.value << FIXNUM_SHIFT
     when AST::TrueLiteral
-      BOOL_TAG | 0b1 # FIXME: I think I'm setting the wrong bit.
+      BOOL_TAG | (0b1 << BOOL_SHIFT)
     when AST::FalseLiteral
-      BOOL_TAG | 0b0
+      BOOL_TAG | (0b0 << BOOL_SHIFT)
     when AST::NilLiteral
       NIL_REP
     end
