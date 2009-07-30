@@ -11,6 +11,7 @@ module AST
     def if?; false; end
     def prog?; false; end
     def def?; false; end
+    def alloc_array?; false; end
   end
 
   class Prog < Struct.new :labels, :expr
@@ -62,6 +63,9 @@ module AST
   class Def < Struct.new :name, :formals, :body
     include Node
     def def?; true; end
+  end
+  class AllocArray < Struct.new :nothing
+    def alloc_arry?; true; end
   end
 end
 
@@ -130,6 +134,12 @@ class LiftProcedure
   end
 end
 
+class IdentifyAlloc
+  def rewrite_program p
+    AST::Prog.new p.labels, p.expr
+  end
+end
+
 class Compiler
   include Runtime
   @@n = 0
@@ -140,8 +150,10 @@ class Compiler
   end
 
   def compile_program string
-    p = LiftProcedure.new.rewrite_program(
-      make_prog(@parser.parse(string).exprs))
+    p =
+      LiftProcedure.new.rewrite_program(
+        IdentifyAlloc.new.rewrite_program(
+          make_prog(@parser.parse(string).exprs)))
 
     p.labels.each {|label,fn|
       emit_label label
@@ -150,6 +162,7 @@ class Compiler
 
     # Program body
     emit_label '_ol_entry' # XXX This should probably be a param.
+    emit "movl %eax, %esi" # Copy heap pointer
     emit_expr p, -4, {}
     emit 'ret'
   end
