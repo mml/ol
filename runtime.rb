@@ -9,6 +9,10 @@ module Runtime
   FIXNUM_MASK  = 0b11
   FIXNUM_SHIFT = 2
 
+  ARRAY_TAG    = 0b010
+  ARRAY_MASK   = 0b111
+  ARRAY_SHIFT  = 3
+
   NIL_REP      = 0b10_1111
 end
 
