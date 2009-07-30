@@ -1,3 +1,5 @@
+.PHONY: test
+
 test: runtime.h
 	./test-driver.rb
 
