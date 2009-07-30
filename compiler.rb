@@ -64,8 +64,9 @@ module AST
     include Node
     def def?; true; end
   end
-  class AllocArray < Struct.new :nothing
-    def alloc_arry?; true; end
+  class AllocArray
+    include Node
+    def alloc_array?; true; end
   end
 end
 
@@ -136,7 +137,22 @@ end
 
 class IdentifyAlloc
   def rewrite_program p
-    AST::Prog.new p.labels, p.expr
+    AST::Prog.new p.labels, (rewrite_expr p.expr)
+  end
+
+  def rewrite_expr e
+    case e
+    when AST::MethodCall
+      if e.invocant and e.invocant.varref? and 'Array' == e.invocant.name and 'new' == e.message
+        return AST::AllocArray.new
+      else
+        e
+      end
+    when AST::Seq
+      AST::Seq.new(e.exprs.map{|e| rewrite_expr e})
+    else
+      e
+    end
   end
 end
 
@@ -206,6 +222,12 @@ class Compiler
       emit "subl $#{-si - WORD_SIZE}, %esp"
       emit "call #{x.label}"
       emit "addl $#{-si - WORD_SIZE}, %esp"
+    when x.alloc_array?
+      emit "movl $0, 0(%esi)" # set alloc to 0
+      emit "movl $0, 4(%esi)" # set count to 0
+      emit "movl %esi, %eax"  # EAX = ESI | 2
+      emit "orl $#{ARRAY_TAG}, %eax"
+      emit "addl $8, %esi"    # bump ESI
     else
       debugger
       puts 9

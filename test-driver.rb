@@ -182,7 +182,7 @@ class TestDriver
         end
       end
       pow(10,2)', '1024'],
-    [:todo, 'Array.new()', '[]'],
+    ['Array.new()', '[]'],
     [:todo, 'Array.new().push(1)', '[1]'],
     [:todo, 'Array.new().push(1).push(2)', '[1,2]'],
   ]
