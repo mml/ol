@@ -9,9 +9,12 @@ Files
 
     Makefile            Instructions for make(1).
     README              This file
-    compiler.rb         Parse tree -> AST pass, and AST -> assembly.
+    compiler.rb         Top-level compiler driver.
+    passes/*            Compiler passes themselves.
     driver.c            C runtime support
-    lang.rb             Parse tree support classes
+    lib/ast.rb          Abstract Syntax Tree definitions
+    lib/lang.rb         Parse tree support classes
+    lib/runtime.rb      Runtime representation details
     ol.treetop          Grammar definition
     test-driver.rb      List of tests and support functions for running them
 
@@ -19,7 +22,7 @@ To see stuff happen, run
 
     make test
 
-then have a look at `test-driver.rb`.
+then have a look at `test-driver.rb` to see what's going on.
 
 Language
 --------
@@ -46,21 +49,22 @@ from Ruby we will take the following notions initially.
 - syntax restrictions from Ruby
   - ()s on method defs and calls are not, for now, optional
 
-Implementation
---------------
+Implementation Progress
+-----------------------
 
 The implementation plan is a variation on http://is.gd/1osYC
 
-- Write a rough grammar in [treetop][3]
-- Start by writing enough of a compiler to emit fixnums
-  - Then add other immediate values (true, false, nil)
-  - Then unary and binary primitives (!, +, *, ==, etc.)
-  - Then single assignment of variables
-  - Then conditionals
+- <strike>Write a rough grammar in [treetop][3]</strike>
+- Compiler
+  - <strike>Start by writing enough of a compiler to emit fixnums</strike>
+  - <strike>Then add other immediate values (true, false, nil)</strike>
+  - <strike>Then unary and binary primitives (!, +, *, ==, etc.)</strike>
+  - <strike>Then single assignment of variables</strike>
+  - <strike>Then conditionals</strike>
+  - <strike>Then method definition and invocation</strike>
+    - <strike>This will include proper scoping for method-local variables</strike>
   - Then heap-allocation
     - This implies strings, arrays and certain primitives thereupon
-  - Then method definition and invocation
-    - This will include proper scoping for method-local variables
   - Then complex literals (e.g., [1,2,3])
   - Then multiple assignment (boxing and unboxing).
   - Then proper tail calls
@@ -75,6 +79,7 @@ The implementation plan is a variation on http://is.gd/1osYC
   - Register allocation and other "don't be dumb" optimizations.
   - Garbage collector
     - Probably stop-and-copy
+- Switch to a more expansive grammor.
 
 Long-term goals
 ---------------
@@ -86,11 +91,13 @@ Anticipated Improvements
 ------------------------
 ### Compiler
 - Optimizations
+
 ### Language
 - lambda and blocks
 - Strings
 - Arrays
 - all of Ruby (use [Markus Liedl's full Ruby grammar][2]?)
+
 ### Runtime
 - A better garbage collector
 
