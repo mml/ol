@@ -1,9 +1,6 @@
-require 'ast'
-require 'lang'
-require 'runtime'
-require 'pass'
-
-Dir.glob("#{File.dirname(__FILE__)}/passes/*.rb").each{|pass| require pass}
+for dir in %w( lib passes ) do
+  Dir.glob("#{File.dirname(__FILE__)}/#{dir}/*.rb").each{|file| require file}
+end
 
 class Compiler
   include Runtime

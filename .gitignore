@@ -1,1 +1,5 @@
 .*.swp
+.vimrc
+driver.o
+runtime.h
+test.s

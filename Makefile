@@ -1,18 +1,21 @@
-.PHONY: test
+.PHONY: test clean todo run
 
-test: runtime.h
+test: lib/runtime.h
 	./test-driver.rb
 
-todo: runtime.h
+todo: lib/runtime.h
 	./test-driver.rb -t
+
+clean:
+	rm -f lib/runtime.h driver.o test test.s
 
 run: testdriver
 	./$@
 
-runtime.h: runtime.rb
+lib/runtime.h: lib/runtime.rb
 	ruby $< > $@
 
-driver.o: driver.c runtime.h
+driver.o: driver.c lib/runtime.h
 
 testdriver: driver.o test.s
 	gcc -o $@ $^

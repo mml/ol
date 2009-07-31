@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
-#include "runtime.h"
+#include "lib/runtime.h"
 
 void print_ol_value(int);
 
