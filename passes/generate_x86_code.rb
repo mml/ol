@@ -9,10 +9,16 @@ class GenerateX86Code < CompilerPass
     }
 
     # Program body
+    emit <<-EOT
+      .text
+      .align 4,0x90
+      .globl _ol_entry
+    EOT
     emit_label '_ol_entry' # XXX This should probably be a param.
     emit "movl %eax, %esi" # Copy heap pointer
     emit_expr p, -4, {}
     emit 'ret'
+    emit '.subsections_via_symbols'
   end
 
   def one

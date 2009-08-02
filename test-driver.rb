@@ -233,9 +233,7 @@ class TestDriver
       begin
         @f.truncate 0
         @f.seek 0
-        write_prologue
         @c.compile_program source
-        write_epilogue
         @f.flush
         link_out = link #FIXME: Need to emit this with failure messages
 
@@ -285,20 +283,6 @@ class TestDriver
       end
       puts "  #{failure[1]}"
     end
-  end
-
-  def write_prologue
-    @f.print <<EOT
-	.text
-	.align 4,0x90
-.globl _ol_entry
-EOT
-  end
-
-  def write_epilogue
-    @f.print <<EOT
-	.subsections_via_symbols
-EOT
   end
 
   def link
