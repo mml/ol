@@ -184,7 +184,9 @@ class TestDriver
       pow(10,2)', '1024'],
     ['Array.new()', '[]'],
     ['Array.new().push(42)', '[42]'],
-    [:todo, 'Array.new().push(1).push(2)', '[1,2]'],
+    ['Array.new().push(1).push(2)', '[1,2]'],
+    ['Array.new().push(1).push(2).push(3)', '[1,2,3]'],
+    ['Array.new().push(nil).push(true).push(false)', '[nil,true,false]'],
   ]
 
   attr_accessor :todo_only

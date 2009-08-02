@@ -36,8 +36,14 @@ void print_ol_value(int val) {
     else if (ARRAY_TAG == (val & ARRAY_MASK)) {
         a = (struct ol_array *) (val^ARRAY_TAG);
         printf("[");
-        for (i = 0; i < a->count; i++)
+
+        // Spelling out join(",", ...)
+        if (a->count >= 1)
+            print_ol_value(a->things[0]);
+        for (i = 1; i < a->count; i++) {
+            printf(",");
             print_ol_value(a->things[i]);
+        }
         printf("]");
     } else {
         printf("Unrecognized value 0x%04x\n", val);
