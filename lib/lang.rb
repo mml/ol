@@ -132,7 +132,15 @@ module ObjLang
     end
   end
 
-  module Array; end
+  module Array
+    def member_exprs
+      if members.empty?
+        []
+      else
+        [members.first] + members.rest.elements.map(&:expr)
+      end
+    end
+  end
 end
 
 class Treetop::Runtime::SyntaxNode

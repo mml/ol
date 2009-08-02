@@ -57,7 +57,7 @@ grammar ObjLang
   end
 
   rule array
-    '[' expr? (',' expr)* ']' <Array>
+    '[' members:( sp? first:expr rest:( sp? ',' sp? expr)* ) ']' <Array>
   end
 
   rule op

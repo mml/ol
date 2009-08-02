@@ -1,5 +1,9 @@
 class ParseConcreteSyntax < CompilerPass
   def rewrite_program p
-    ObjLangParser.new.parse(p)
+    tree = ObjLangParser.new.parse(p)
+    if nil == tree
+      raise "#{p} does not parse!"
+    end
+    return tree
   end
 end

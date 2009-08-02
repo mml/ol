@@ -87,11 +87,20 @@ class BuildAST < CompilerPass
         e.param_exprs.map {|param| to_abstract param }
       )
     when ObjLang::Array
-      AST::MethodCall.new(
+      # XXX: Array literals should be constructed more efficiently.
+      a = AST::MethodCall.new(
         AST::VarRef.new('Array'),
         'new',
-        [] # FIXME: Pay attention to subexprs!
+        []
       )
+      for member in e.member_exprs
+        a = AST::MethodCall.new(
+          a,
+          'push',
+          [to_abstract(member)]
+        )
+      end
+      return a
     else
       debugger
       raise "Can't translate #{e}\n"
