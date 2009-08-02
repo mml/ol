@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+require 'compiler'
+require 'tempfile'
+
+system "gcc -g -O3 --omit-frame-pointer -c driver.c"
+
+loop do
+  print "colubris> "
+  break unless program = STDIN.gets
+  as = Tempfile.new 'colubris'
+  Compiler.new(as).compile_program(program)
+  as.close
+  exe = Tempfile.new 'colubris'
+  exe.close
+  system "gcc -g driver.o -x assembler #{as.path} -o #{exe.path}"
+  system exe.path
+end
