@@ -55,11 +55,11 @@ class GenerateX86Code < CompilerPass
       emit "call #{x.label}"
       emit "addl $#{-si - WORD_SIZE}, %esp"
     when x.alloc_array?
-      emit "movl $0, 0(%esi)" # set alloc to 0
-      emit "movl $0, 4(%esi)" # set count to 0
+      emit "movl $30, 0(%esi)" # set alloc to 30
+      emit "movl $0, #{WORD_SIZE}(%esi)" # set count to 0
       emit "movl %esi, %eax"  # EAX = ESI | 2
       emit "orl $#{ARRAY_TAG}, %eax"
-      emit "addl $8, %esi"    # bump ESI
+      emit "addl $#{WORD_SIZE * 32}, %esi"    # bump ESI
     else
       debugger
       puts 9
