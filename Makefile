@@ -1,5 +1,7 @@
 .PHONY: test clean todo run
 
+CFLAGS += -g
+
 test: lib/runtime.h
 	./test-driver.rb
 

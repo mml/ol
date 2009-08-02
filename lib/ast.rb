@@ -35,7 +35,7 @@ module AST
   class MethodCall < Struct.new :invocant, :message, :args
     include Node
     def primcall?
-      message =~ /^succ|pred|nil\?|zero\?|!|\+|-|==|<|>|<=|>=|\*$/
+      message =~ /^succ|pred|nil\?|zero\?|!|\+|-|==|<|>|<=|>=|\*|push$/
     end
   end
   class LabelCall < Struct.new :label, :args

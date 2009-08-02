@@ -34,7 +34,7 @@ class BuildAST < CompilerPass
           AST::MethodCall.new(
             last,
             mess.elements[1].meth.text_value,
-            []
+            mess.message.param_exprs.map{|pe| to_abstract pe}
           )
         end
       end

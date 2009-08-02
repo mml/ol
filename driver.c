@@ -8,7 +8,7 @@ void print_ol_value(int);
 struct ol_array {
     int alloc;
     int count;
-    int *things;
+    int things[];
 };
 
 int main(int argc, char **argv) {
@@ -18,6 +18,8 @@ int main(int argc, char **argv) {
 
     print_ol_value(val);
 
+    printf("\n");
+
     return 0;
 }
 
@@ -26,13 +28,13 @@ void print_ol_value(int val) {
     struct ol_array *a;
 
     if (FIXNUM_TAG == (val & FIXNUM_MASK))
-        printf("%d\n", val >> FIXNUM_SHIFT);
+        printf("%d", val >> FIXNUM_SHIFT);
     else if (BOOL_TAG == (val & BOOL_MASK))
-        printf("%s\n", val >> BOOL_SHIFT ? "true" : "false");
+        printf("%s", val >> BOOL_SHIFT ? "true" : "false");
     else if (NIL_REP == val)
-        printf("nil\n");
+        printf("nil");
     else if (ARRAY_TAG == (val & ARRAY_MASK)) {
-        a = (struct ol_array *) (val^ARRAY_MASK);
+        a = (struct ol_array *) (val^ARRAY_TAG);
         printf("[");
         for (i = 0; i < a->count; i++)
             print_ol_value(a->things[i]);

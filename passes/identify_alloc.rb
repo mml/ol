@@ -9,7 +9,7 @@ class IdentifyAlloc < CompilerPass
       if e.invocant and e.invocant.varref? and 'Array' == e.invocant.name and 'new' == e.message
         return AST::AllocArray.new
       else
-        e
+        AST::MethodCall.new(rewrite_expr(e.invocant), e.message, e.args.map{|e| rewrite_expr e})
       end
     when AST::Seq
       AST::Seq.new(e.exprs.map{|e| rewrite_expr e})

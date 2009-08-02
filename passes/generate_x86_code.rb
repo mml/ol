@@ -134,6 +134,22 @@ class GenerateX86Code < CompilerPass
       emit "movl %eax, #{si}(%esp)"
       emit_expr x.invocant, si - WORD_SIZE, env
       emit_compare "#{si}(%esp)", 'ge'
+    when 'push'
+      emit_expr x.args[0], si, env              # New value -> ECX
+      emit "movl %eax, %ecx"
+
+      emit_expr x.invocant, si, env             # Array pointer -> EAX
+      emit "xorl $#{ARRAY_TAG}, %eax"
+
+      emit "movl #{WORD_SIZE}(%eax), %edx"      # size into EDX
+
+      # New value in to the next spot
+      emit "movl %ecx, #{WORD_SIZE * 2}(%eax,%edx,#{WORD_SIZE})"
+
+      emit "incl %edx"                          # increment size (in EDX)
+      emit "movl %edx, #{WORD_SIZE}(%eax)"      # write size back from EDX
+
+      emit "orl $#{ARRAY_TAG}, %eax"            # Restore tagged pointer to EAX
     end
   end
 

@@ -183,7 +183,7 @@ class TestDriver
       end
       pow(10,2)', '1024'],
     ['Array.new()', '[]'],
-    [:todo, 'Array.new().push(1)', '[1]'],
+    ['Array.new().push(42)', '[42]'],
     [:todo, 'Array.new().push(1).push(2)', '[1,2]'],
   ]
 
@@ -200,7 +200,7 @@ class TestDriver
   def run_tests
     failures = []
 
-    system 'gcc -O3 --omit-frame-pointer -c driver.c'
+    system 'gcc -g -O3 --omit-frame-pointer -c driver.c'
 
     pass = 0
     skip = 0
@@ -292,7 +292,7 @@ EOT
   end
 
   def link
-    `gcc -o #{@exe} #{@as} driver.o 2>&1`.chomp
+    `gcc -g -o #{@exe} #{@as} driver.o 2>&1`.chomp
   end
 
   def run
