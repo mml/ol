@@ -131,6 +131,8 @@ module ObjLang
       "(#{expr.deparse})"
     end
   end
+
+  module Array; end
 end
 
 class Treetop::Runtime::SyntaxNode

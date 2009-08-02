@@ -86,6 +86,12 @@ class BuildAST < CompilerPass
         e.meth.text_value,
         e.param_exprs.map {|param| to_abstract param }
       )
+    when ObjLang::Array
+      AST::MethodCall.new(
+        AST::VarRef.new('Array'),
+        'new',
+        [] # FIXME: Pay attention to subexprs!
+      )
     else
       debugger
       raise "Can't translate #{e}\n"

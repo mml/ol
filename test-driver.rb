@@ -187,6 +187,13 @@ class TestDriver
     ['Array.new().push(1).push(2)', '[1,2]'],
     ['Array.new().push(1).push(2).push(3)', '[1,2,3]'],
     ['Array.new().push(nil).push(true).push(false)', '[nil,true,false]'],
+    ['Array.new().push(Array.new().push(Array.new().push(nil)).push(true)).push(false)', '[[[nil],true],false]'],
+    ['[]', '[]'],
+    [:todo, '[42]', '[42]'],
+    [:todo, '[42,43]', '[42,43]'],
+    [:todo, '""', '""'],
+    [:todo, '"x"', '"x"'],
+    [:todo, '"x".concat("y")', '"xy"'],
   ]
 
   attr_accessor :todo_only

@@ -57,7 +57,7 @@ grammar ObjLang
   end
 
   rule array
-    '[' expr ']'
+    '[' expr? (',' expr)* ']' <Array>
   end
 
   rule op
