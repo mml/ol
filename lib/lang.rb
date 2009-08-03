@@ -4,13 +4,6 @@ Treetop.load 'ol'
 
 module ObjLang
   module Deparse
-    def deparse
-      if elements
-        elements.map(&:deparse).join
-      else
-        ''
-      end
-    end
   end
 
   module Program
@@ -38,45 +31,24 @@ module ObjLang
   module VarRef; end
 
   module MessageChain
-    def deparse
-      elements.map {|node|
-        '.' + node.message.deparse
-      }
-    end
   end
 
   module EndExpr
-    def deparse
-      "\n"
-    end
   end
 
   module Integer
-    def deparse
-      text_value
-    end
   end
 
   module Identifier
-    def deparse
-      text_value
-    end
   end
 
   module Whitespace
   end
 
   module ClassDef
-    def deparse
-      "class #{name.deparse}\n#{body.deparse}end\n"
-    end
   end
 
   module MethDef
-    def deparse
-      "def #{name.deparse}(#{formal_ids.map(&:deparse).join(',')})\n#{body.deparse}end\n"
-    end
-
     def formal_ids
       if formals.empty?
         []
@@ -87,10 +59,6 @@ module ObjLang
   end
 
   module Message
-    def deparse
-      "#{meth.deparse}(#{param_exprs.map(&:deparse).join(',')})"
-    end
-
     def param_exprs
       if params.empty?
         []
@@ -101,35 +69,20 @@ module ObjLang
   end
   
   module Assignment
-    def deparse
-      "#{lhs.deparse} = #{rhs.deparse}\n"
-    end
   end
 
   module IfExpr
-    def deparse
-      "if #{test.deparse}\n#{cons.deparse}\n#{if_rest.deparse}"
-    end
   end
 
   module ElseExpr
-    def deparse
-      "else\n#{alt.deparse}\nend\n"
-    end
   end
 
   module OpApp
-    def deparse
-      "#{rand1.deparse} #{op.text_value} #{rand2.deparse}"
-    end
   end
 
   module UnaryOp; end
 
   module Parens
-    def deparse
-      "(#{expr.deparse})"
-    end
   end
 
   module Array
