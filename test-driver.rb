@@ -4,6 +4,9 @@ require 'compiler'
 require 'ruby-debug'
 require 'getoptlong'
 
+class TestCase < Struct.new :flag, :source, :expected
+end
+
 class TestDriver
   @@test_cases = [
     # fixnum literals
@@ -197,7 +200,7 @@ class TestDriver
     [:todo, '"x".concat("y")', '"xy"'],
   ]
 
-  attr_accessor :todo_only
+  attr_accessor :failures, :passed, :skip, :unexpected, :todo, :todo_only, :test_case
 
   def initialize
     @as = 'test.s'
@@ -208,27 +211,30 @@ class TestDriver
   end
 
   def run_tests
-    failures = []
+    self.failures = []
 
     system 'gcc -g -O3 --omit-frame-pointer -c driver.c'
 
-    pass = 0
-    skip = 0
-    unexpected = 0
-    todo = 0
+    self.passed = 0
+    self.skip = 0
+    self.unexpected = 0
+    self.todo = 0
 
     cases = todo_only ? @@test_cases.select {|c| :todo == c[0]} : @@test_cases
     for flag,source,expected in cases
       if flag.is_a? Symbol
         if flag == :skip
-          skip += 1
+          self.skip += 1
           print 'S'
           next
         end
       else
-        expected=source
-        source=flag
+        expected = source
+        source = flag
+        flag = nil
       end
+
+      self.test_case = TestCase.new flag, source, expected
 
       begin
         @f.truncate 0
@@ -238,39 +244,21 @@ class TestDriver
         link_out = link #FIXME: Need to emit this with failure messages
 
         if (r = run) == expected
-          if flag == :todo
-            print '!'
-            unexpected += 1
-          else
-            print '.'
-            pass += 1
-          end
+          pass
         else
-          if flag == :todo
-            print 'T'
-            todo += 1
-          else
-            print 'F'
-            failures.push [r,source,expected,`cat test.s`]
-          end
+          fail 'F', [r, source, expected, `cat test.s`]
         end
       rescue => e
-        if flag == :todo
-          print 'T'
-          todo += 1
-        else
-          print 'E'
-          failures.push [e, source]
-        end
+        fail 'E', [e, source]
       end
     end
     puts
 
     printf "%d/%d passed (%.0f%%)\n",
-      pass, cases.count, 100 * pass / cases.count
+      self.passed, cases.count, 100 * self.passed / cases.count
     printf "%d to do tests unexpectedly passed!", unexpected if unexpected > 0
-    printf "%d to do\n", todo if todo > 0
-    printf "%d skipped\n", skip if skip > 0
+    printf "%d to do\n", self.todo if self.todo > 0
+    printf "%d skipped\n", self.skip if self.skip > 0
 
     failures.each do |failure|
       case failure.length
@@ -291,6 +279,28 @@ class TestDriver
 
   def run
     `./#{@exe} 2>&1`.chomp
+  end
+
+  def fail mark, notes
+    if :todo == test_case.flag
+      print 'T'
+      self.todo += 1
+    else
+      print mark
+    end
+    if todo_only or test_case.flag != :todo
+      self.failures.push notes
+    end
+  end
+
+  def pass
+    if :todo == test_case.flag
+      print '!'
+      self.unexpected += 1
+    else
+      print '.'
+    end
+    self.passed += 1
   end
 end
 
