@@ -132,38 +132,38 @@ class TestDriver
         end
       end
       a=mult(mult(mult(2,2),mult(2,2)),mult(mult(2,2),mult(2,2)))' , '256'],
-      [:todo, 'def mult(a,b)
-          accum(a,b,0)
+    [:todo, 'def mult(a,b)
+        accum(a,b,0)
+      end
+      def accum(a,b,x)
+        if a == 0
+          x
+        else
+          accum(a-1,b,x+b)
         end
-        def accum(a,b,x)
-          if a == 0
-            x
-          else
-            accum(a-1,b,x+b)
-          end
-        end
+      end
+      mult(
         mult(
           mult(
-            mult(
-              mult(2,2),
-              mult(2,2)
-            ),
-            mult(
-              mult(2,2),
-              mult(2,2)
-            )
+            mult(2,2),
+            mult(2,2)
           ),
           mult(
-            mult(
-              mult(2,2),
-              mult(2,2)
-            ),
-            mult(
-              mult(2,2),
-              mult(2,2)
-            )
+            mult(2,2),
+            mult(2,2)
           )
-        )','65536'],
+        ),
+        mult(
+          mult(
+            mult(2,2),
+            mult(2,2)
+          ),
+          mult(
+            mult(2,2),
+            mult(2,2)
+          )
+        )
+      )','65536'],
     ['def mult(a,b)
         accum(a,b,0)
       end
