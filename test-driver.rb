@@ -266,7 +266,7 @@ class TestDriver
 
     printf "%d/%d passed (%.0f%%)\n",
       self.passed, cases.count, 100 * self.passed / cases.count
-    printf "%d to do tests unexpectedly passed!", unexpected if unexpected > 0
+    printf "%d to do tests unexpectedly passed!\n", unexpected if unexpected > 0
     printf "%d to do\n", self.todo if self.todo > 0
     printf "%d skipped\n", self.skip if self.skip > 0
 
