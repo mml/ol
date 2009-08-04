@@ -8,7 +8,6 @@ module AST
     def if?; false; end
     def prog?; false; end
     def def?; false; end
-    def alloc_array?; false; end
   end
 
   class Prog < Struct.new :labels, :expr
@@ -61,8 +60,7 @@ module AST
     include Node
     def def?; true; end
   end
-  class AllocArray
+  class Alloc < Struct.new :byte_count, :tag, :init
     include Node
-    def alloc_array?; true; end
   end
 end

@@ -60,16 +60,21 @@ class GenerateX86Code < CompilerPass
       emit "subl $#{-si - WORD_SIZE}, %esp"
       emit "call #{x.label}"
       emit "addl $#{-si - WORD_SIZE}, %esp"
-    when x.alloc_array?
-      emit "movl $30, 0(%esi)" # set alloc to 30
-      emit "movl $0, #{WORD_SIZE}(%esi)" # set count to 0
-      emit "movl %esi, %eax"  # EAX = ESI | 2
-      emit "orl $#{ARRAY_TAG}, %eax"
-      emit "addl $#{WORD_SIZE * 32}, %esi"    # bump ESI
+    when x.kind_of?(AST::Alloc)
+      x.init.each_with_index do |n,i|
+        emit "movl $#{n}, #{i * WORD_SIZE}(%esi)"
+      end
+      emit "movl %esi, %eax"
+      emit "orl $#{x.tag}, %eax"
+      emit "addl $#{round_up x.byte_count}, %esi"    # bump ESI
     else
       debugger
       puts 9
     end
+  end
+
+  def round_up n
+    n - (n % ALIGNMENT) + ALIGNMENT
   end
 
   def emit_proc formals, body, si, env
