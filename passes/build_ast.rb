@@ -101,6 +101,9 @@ class BuildAST < CompilerPass
         )
       end
       return a
+    when ObjLang::ClassDef
+      # XXX WRONG
+      make_seq(e.body.elements.map &:expr)
     else
       debugger
       raise "Can't translate #{e}\n"

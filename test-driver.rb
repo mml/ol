@@ -198,6 +198,16 @@ class TestDriver
     [:todo, '""', '""'],
     [:todo, '"x"', '"x"'],
     [:todo, '"x".concat("y")', '"xy"'],
+    [:todo,
+       'class Foo
+          def Foo.bar()
+            8008
+          end
+        end
+        def bar()
+          2525
+        end
+        Foo.bar()', '8008']
   ]
 
   attr_accessor :failures, :passed, :skip, :unexpected, :todo, :todo_only, :test_case
