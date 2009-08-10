@@ -1,3 +1,9 @@
+# Pass 4: GenerateX86Code
+#
+# This pass takes the program and emits x86 assembly suitable for handing to
+# `as`.
+#
+# The input to this pass is the output from LiftProcedure.
 class GenerateX86Code < CompilerPass
   include Runtime
   @@n = 0

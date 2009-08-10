@@ -1,3 +1,24 @@
+# Pass 2: IdentifyAlloc
+#
+# This pass identifies calls to 'Array.new()' and converts them to explicit heap
+# allocation operations.
+#
+# The input to this pass is the same as the output from BuildAST.  The output
+# just has the Alloc() form added
+#
+# <Prog> ::= Prog <Expr>*
+# <Expr> ::= TrueLiteral
+#          | FalseLiteral
+#          | NilLiteral
+#          | Integer <integer>
+#          | Let <name> <Expr> <Expr>
+#          | VarRef <name>
+#          | If <Expr> <Expr> <Expr>
+#          | Def <name> <name>* <Expr>
+#          | MethodCall <Expr> <name> <Expr>*
+#          | Alloc <integer> <integer> <integer>*
+#          | Seq <Expr>*
+
 class IdentifyAlloc < CompilerPass
   include Runtime
   def rewrite_program p

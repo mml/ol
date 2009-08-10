@@ -1,3 +1,26 @@
+# Pass 3: LiftProcedure
+#
+# This pass moves all procedure definitions to global labels and replaces calls
+# to them with LabelCall forms.  All MethodCall forms are not eliminated,
+# however, because we can identify some as primitive calls at this point.
+#
+# The input to this pass is the output from IdentifyAlloc.  The output adds the
+# labels, their definitions, and LabelCall; and removes Def from general
+# expression context.
+#
+# <Prog> ::= Prog {<name> => Def <name> <name>* <Expr>}* <Expr>*
+# <Expr> ::= TrueLiteral
+#          | FalseLiteral
+#          | NilLiteral
+#          | Integer <integer>
+#          | Let <name> <Expr> <Expr>
+#          | VarRef <name>
+#          | If <Expr> <Expr> <Expr>
+#          | LabelCall <name> <Expr>*
+#          | MethodCall <Expr> <name> <Expr>*
+#          | Alloc <integer> <integer> <integer>*
+#          | Seq <Expr>*
+
 class LiftProcedure < CompilerPass
   def rewrite_program p
     labels, expr = rewrite_expr p.expr

@@ -1,3 +1,31 @@
+# Pass 1: BuildAST
+#
+# This pass takes the crude parse tree produce by treetop and forms it into an
+# AST, mainly by discarding whitespace tokens and smoothing over the assorted
+# nesting irregularities that are due to the parser specification.
+#
+# At the moment, it also
+# - turns array literals in to a string of method calls to produce that array,
+# - converts assignments unilaterally in to binding forms (called Let), and
+# - treats 'class...end' forms as only their contents.
+#
+# But those should probably be extracted to some other passes for clarity.
+#
+# The input language is that specified by ol.treetop and lib/lang.rb.  The
+# output is
+# 
+# <Prog> ::= Prog <Expr>*
+# <Expr> ::= TrueLiteral
+#          | FalseLiteral
+#          | NilLiteral
+#          | Integer <integer>
+#          | Let <name> <Expr> <Expr>
+#          | VarRef <name>
+#          | If <Expr> <Expr> <Expr>
+#          | Def <name> <name>* <Expr>
+#          | MethodCall <Expr> <name> <Expr>*
+#          | Seq <Expr>*
+
 class BuildAST < CompilerPass
   def rewrite_program p
     make_prog p.exprs
