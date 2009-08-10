@@ -3,6 +3,9 @@ module Runtime
   BOOL_MASK     = 0b111_1111
   BOOL_SHIFT    = 7
 
+  TRUE_REP = (1 << BOOL_SHIFT) | BOOL_TAG
+  FALSE_REP = BOOL_TAG
+
   WORD_SIZE     = 4
   ALIGNMENT     = 2 * WORD_SIZE
 

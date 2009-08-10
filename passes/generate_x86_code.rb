@@ -1,4 +1,4 @@
-# Pass 4: GenerateX86Code
+# Pass 5: GenerateX86Code
 #
 # This pass takes the program and emits x86 assembly suitable for handing to
 # `as`.
@@ -28,17 +28,17 @@ class GenerateX86Code < CompilerPass
   end
 
   def one
-    immediate_rep AST::Integer.new 1
+    1 << FIXNUM_SHIFT
   end
 
   def zero
-    immediate_rep AST::Integer.new 0
+    0
   end
 
   def emit_expr x, si, env
     case
-    when x.immediate?
-      emit "movl $#{immediate_rep x}, %eax"
+    when x.kind_of?(Integer)
+      emit "movl $#{x}, %eax"
     when x.primcall?
       emit_primitive_call x, si, env
     when x.seq?
@@ -74,8 +74,7 @@ class GenerateX86Code < CompilerPass
       emit "orl $#{x.tag}, %eax"
       emit "addl $#{round_up x.byte_count}, %esi"    # bump ESI
     else
-      debugger
-      puts 9
+      raise "Cannot emit #{x} #{x.class}"
     end
   end
 
@@ -175,7 +174,7 @@ class GenerateX86Code < CompilerPass
     l0 = unique_label
     l1 = unique_label
     emit_expr test, si, env
-    emit "cmpl $#{immediate_rep AST::FalseLiteral}, %eax"
+    emit "cmpl $#{FALSE_REP}, %eax"
     emit "je #{l0}"
     emit_expr cons, si, env
     emit "jmp #{l1}"
@@ -199,19 +198,6 @@ class GenerateX86Code < CompilerPass
     emit "set#{flags} %al"
     emit "sall $#{BOOL_SHIFT}, %eax" # Shift left by 7 bits
     emit "orl $#{BOOL_TAG}, %eax" # Tag as boolean
-  end
-
-  def immediate_rep x
-    case x
-    when AST::Integer
-      x.value << FIXNUM_SHIFT
-    when AST::TrueLiteral
-      BOOL_TAG | (0b1 << BOOL_SHIFT)
-    when AST::FalseLiteral
-      BOOL_TAG | (0b0 << BOOL_SHIFT)
-    when AST::NilLiteral
-      NIL_REP
-    end
   end
 
   def emit s

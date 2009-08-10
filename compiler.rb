@@ -9,6 +9,7 @@ class Compiler
   PASSES = [
     ParseConcreteSyntax,
     BuildAST,
+    SpecifyImmediateRepresentation,
     IdentifyAlloc,
     LiftProcedure,
     GenerateX86Code

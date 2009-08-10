@@ -1,16 +1,13 @@
-# Pass 2: IdentifyAlloc
+# Pass 3: IdentifyAlloc
 #
 # This pass identifies calls to 'Array.new()' and converts them to explicit heap
 # allocation operations.
 #
-# The input to this pass is the same as the output from BuildAST.  The output
-# just has the Alloc() form added
+# The input to this pass is the same as the output from
+# SpecifyImmediateRepresentation.  The output just has the Alloc() form added
 #
 # <Prog> ::= Prog <Expr>*
-# <Expr> ::= TrueLiteral
-#          | FalseLiteral
-#          | NilLiteral
-#          | Integer <integer>
+# <Expr> ::= <integer>
 #          | Let <name> <Expr> <Expr>
 #          | VarRef <name>
 #          | If <Expr> <Expr> <Expr>
@@ -28,7 +25,7 @@ class IdentifyAlloc < CompilerPass
   def rewrite_expr e
     case e
     when AST::MethodCall
-      if e.invocant and e.invocant.varref? and 'Array' == e.invocant.name and 'new' == e.message
+      if e.invocant and e.invocant.kind_of?(AST::VarRef) and 'Array' == e.invocant.name and 'new' == e.message
         AST::Alloc.new(32 * WORD_SIZE, ARRAY_TAG, [30, 0]) # Set capacity to 30 and count to 0
       else
         AST::MethodCall.new(rewrite_expr(e.invocant), e.message, e.args.map{|e| rewrite_expr e})

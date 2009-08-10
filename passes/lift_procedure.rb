@@ -1,4 +1,4 @@
-# Pass 3: LiftProcedure
+# Pass 4: LiftProcedure
 #
 # This pass moves all procedure definitions to global labels and replaces calls
 # to them with LabelCall forms.  All MethodCall forms are not eliminated,
@@ -9,10 +9,7 @@
 # expression context.
 #
 # <Prog> ::= Prog {<name> => Def <name> <name>* <Expr>}* <Expr>*
-# <Expr> ::= TrueLiteral
-#          | FalseLiteral
-#          | NilLiteral
-#          | Integer <integer>
+# <Expr> ::= <integer>
 #          | Let <name> <Expr> <Expr>
 #          | VarRef <name>
 #          | If <Expr> <Expr> <Expr>
@@ -22,6 +19,7 @@
 #          | Seq <Expr>*
 
 class LiftProcedure < CompilerPass
+  include Runtime
   def rewrite_program p
     labels, expr = rewrite_expr p.expr
     AST::Prog.new labels, expr
@@ -32,8 +30,7 @@ class LiftProcedure < CompilerPass
     case e
     when AST::Def
       labels, body = rewrite_expr e.body
-      return  labels.merge(e.name => AST::Def.new(e.name, e.formals, body)),
-              AST::NilLiteral
+      return  labels.merge(e.name => AST::Def.new(e.name, e.formals, body)), NIL_REP
     when AST::MethodCall
       # XXX Ignoring the invocant for now.
       if e.primcall?
@@ -64,12 +61,10 @@ class LiftProcedure < CompilerPass
       alt_labels, alt   = rewrite_expr e.alt
       return  test_labels.merge(cons_labels).merge(alt_labels),
               AST::If.new(test, cons, alt)
-    when AST::ImmediateNode, AST::VarRef
+    when Integer, AST::VarRef
       return {}, e
     when AST::Node
       return {}, e
-    else
-      debugger
     end
   end
 end
