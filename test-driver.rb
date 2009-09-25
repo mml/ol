@@ -217,7 +217,7 @@ class TestDriver
     @exe = 'test'
     @f = File.open @as, 'w'
     @c = Compiler.new @f
-    todo_only = false
+    self.todo_only = false
   end
 
   def run_tests
