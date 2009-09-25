@@ -3,9 +3,6 @@ require 'treetop'
 Treetop.load 'ol'
 
 module ObjLang
-  module Deparse
-  end
-
   module Program
     def exprs
       stmts.elements.map(&:expr) +
@@ -97,8 +94,6 @@ module ObjLang
 end
 
 class Treetop::Runtime::SyntaxNode
-  include ObjLang::Deparse
-
   attr_writer :elements
 end
 
