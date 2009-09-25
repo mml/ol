@@ -2,6 +2,10 @@ require 'rubygems'
 require 'treetop'
 Treetop.load 'ol'
 
+class Treetop::Runtime::SyntaxNode
+  attr_writer :elements
+end
+
 module ObjLang
   module Program
     def exprs
@@ -12,37 +16,6 @@ module ObjLang
           [expr]
         end
     end
-  end
-
-  module Statement
-  end
-  
-  module Expr
-  end
-
-  module AtomicExpr; end
-  module TrueLiteral; end
-  module FalseLiteral; end
-  module NilLiteral; end
-  module Character; end
-  module VarRef; end
-
-  module MessageChain
-  end
-
-  module EndExpr
-  end
-
-  module Integer
-  end
-
-  module Identifier
-  end
-
-  module Whitespace
-  end
-
-  module ClassDef
   end
 
   module MethDef
@@ -64,23 +37,6 @@ module ObjLang
       end
     end
   end
-  
-  module Assignment
-  end
-
-  module IfExpr
-  end
-
-  module ElseExpr
-  end
-
-  module OpApp
-  end
-
-  module UnaryOp; end
-
-  module Parens
-  end
 
   module Array
     def member_exprs
@@ -91,9 +47,25 @@ module ObjLang
       end
     end
   end
-end
 
-class Treetop::Runtime::SyntaxNode
-  attr_writer :elements
+  module Statement; end
+  module Expr; end
+  module AtomicExpr; end
+  module TrueLiteral; end
+  module FalseLiteral; end
+  module NilLiteral; end
+  module Character; end
+  module VarRef; end
+  module MessageChain; end
+  module EndExpr; end
+  module Integer; end
+  module Identifier; end
+  module Whitespace; end
+  module ClassDef; end
+  module Assignment; end
+  module IfExpr; end
+  module ElseExpr; end
+  module OpApp; end
+  module UnaryOp; end
+  module Parens; end
 end
-
