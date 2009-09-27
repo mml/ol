@@ -5,6 +5,12 @@ require 'ruby-debug'
 require 'getoptlong'
 
 class TestCase < Struct.new :flag, :source, :expected
+  def initialize list
+    self.flag, self.source, self.expected = list
+    unless flag.is_a? Symbol
+      self.expected, self.source, self.flag = source, flag, nil
+    end
+  end
 end
 
 class TestDriver
@@ -35,35 +41,29 @@ class TestDriver
     self.todo = 0
 
     cases = todo_only ? @@test_cases.select {|c| :todo == c[0]} : @@test_cases
-    for flag,source,expected in cases
-      if flag.is_a? Symbol
-        if flag == :skip
-          self.skip += 1
-          print 'S'
-          next
-        end
-      else
-        expected = source
-        source = flag
-        flag = nil
-      end
+    for c in cases
+      self.test_case = TestCase.new c
 
-      self.test_case = TestCase.new flag, source, expected
+      if :skip == test_case.flag
+        self.skip += 1
+        print 'S'
+        next
+      end
 
       begin
         @f.truncate 0
         @f.seek 0
-        @c.compile_program source
+        @c.compile_program test_case.source
         @f.flush
         link_out = link #FIXME: Need to emit this with failure messages
 
-        if (r = run) == expected
+        if (r = run) == test_case.expected
           pass
         else
-          fail 'F', [r, source, expected, `cat test.s`]
+          fail 'F', [r, test_case.source, test_case.expected, `cat test.s`]
         end
       rescue => e
-        fail 'E', [e, source]
+        fail 'E', [e, test_case.source]
       end
     end
     puts
