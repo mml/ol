@@ -165,104 +165,104 @@
   - "100"
 - - |-
     def mult(a,b)
-            accum(a,b,0)
-          end
-          def accum(a,b,x)
-            if a == 0
-              x
-            else
-              accum(a-1,b,x+b)
-            end
-          end
-          mult(633,23)
+      accum(a,b,0)
+    end
+    def accum(a,b,x)
+      if a == 0
+        x
+      else
+        accum(a-1,b,x+b)
+      end
+    end
+    mult(633,23)
   - "14559"
 - - |-
     def mult(a,b)
-            accum(a,b,0)
-          end
-          def accum(a,b,x)
-            if a == 0
-              x
-            else
-              accum(a-1,b,x+b)
-            end
-          end
-          a=2
-          a=mult(a,a)
-          a=mult(a,a)
-          a=mult(a,a)
-          a=mult(a,a)
+      accum(a,b,0)
+    end
+    def accum(a,b,x)
+      if a == 0
+        x
+      else
+        accum(a-1,b,x+b)
+      end
+    end
+    a=2
+    a=mult(a,a)
+    a=mult(a,a)
+    a=mult(a,a)
+    a=mult(a,a)
   - "65536"
 - - |-
     def mult(a,b)
-            accum(a,b,0)
-          end
-          def accum(a,b,x)
-            if a == 0
-              x
-            else
-              accum(a-1,b,x+b)
-            end
-          end
-          a=mult(mult(mult(2,2),mult(2,2)),mult(mult(2,2),mult(2,2)))
+      accum(a,b,0)
+    end
+    def accum(a,b,x)
+      if a == 0
+        x
+      else
+        accum(a-1,b,x+b)
+      end
+    end
+    a=mult(mult(mult(2,2),mult(2,2)),mult(mult(2,2),mult(2,2)))
   - "256"
 - - :todo
   - |-
     def mult(a,b)
-            accum(a,b,0)
-          end
-          def accum(a,b,x)
-            if a == 0
-              x
-            else
-              accum(a-1,b,x+b)
-            end
-          end
-          mult(
-            mult(
-              mult(
-                mult(2,2),
-                mult(2,2)
-              ),
-              mult(
-                mult(2,2),
-                mult(2,2)
-              )
-            ),
-            mult(
-              mult(
-                mult(2,2),
-                mult(2,2)
-              ),
-              mult(
-                mult(2,2),
-                mult(2,2)
-              )
-            )
-          )
+      accum(a,b,0)
+    end
+    def accum(a,b,x)
+      if a == 0
+        x
+      else
+        accum(a-1,b,x+b)
+      end
+    end
+    mult(
+      mult(
+        mult(
+          mult(2,2),
+          mult(2,2)
+        ),
+        mult(
+          mult(2,2),
+          mult(2,2)
+        )
+      ),
+      mult(
+        mult(
+          mult(2,2),
+          mult(2,2)
+        ),
+        mult(
+          mult(2,2),
+          mult(2,2)
+        )
+      )
+    )
   - "65536"
 - - |-
     def mult(a,b)
-            accum(a,b,0)
-          end
-          def accum(a,b,x)
-            if a == 0
-              x
-            else
-              accum(a-1,b,x+b)
-            end
-          end
-          def pow(a,b)
-            accup(a,b,1)
-          end
-          def accup(a,b,x)
-            if a == 0
-              x
-            else
-              accup(a-1,b,mult(x,b))
-            end
-          end
-          pow(10,2)
+      accum(a,b,0)
+    end
+    def accum(a,b,x)
+      if a == 0
+        x
+      else
+        accum(a-1,b,x+b)
+      end
+    end
+    def pow(a,b)
+      accup(a,b,1)
+    end
+    def accup(a,b,x)
+      if a == 0
+        x
+      else
+        accup(a-1,b,mult(x,b))
+      end
+    end
+    pow(10,2)
   - "1024"
 - - Array.new()
   - "[]"
@@ -296,12 +296,12 @@
 - - :todo
   - |-
     class Foo
-              def Foo.bar()
-                8008
-              end
-            end
-            def bar()
-              2525
-            end
-            Foo.bar()
+      def Foo.bar()
+        8008
+      end
+    end
+    def bar()
+      2525
+    end
+    Foo.bar()
   - "8008"
