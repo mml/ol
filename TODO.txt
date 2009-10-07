@@ -1,0 +1,17 @@
+#  vim:sts=2:sw=2:
+- Is there treetop syntax highlighting for vim?
+- strings
+  - Specify string representation
+  - Extend language to include strings
+    - String literals in ol.treetop
+    - StringLiteral in lang.rb
+    - Convert string literals to "allocate; set;" sequence.
+    - Open code concat()
+- big picture
+  - need to operationalize class and method definitions, & method lookup
+    - this means allocating class/object structures, which means unifying
+      alloc() calls
+    - and it means specifying runtime representations of classes, methods, and
+      applications
+    - beginning approaches to these issues can probably be gotten from one of
+      Appel's _Modern Compiler Implementation in Foo_ books.
