@@ -133,7 +133,6 @@ class BuildAST < CompilerPass
       # XXX WRONG
       make_seq(e.body.elements.map &:expr)
     else
-      debugger
       raise "Can't translate #{e}\n"
     end
   end
