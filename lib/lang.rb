@@ -67,4 +67,5 @@ module ObjLang
   module OpApp; end
   module UnaryOp; end
   module Parens; end
+  module String; end
 end

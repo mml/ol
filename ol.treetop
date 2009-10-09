@@ -44,7 +44,7 @@ grammar ObjLang
 
   rule atomic_expr
     base:(
-      message / TRUE / FALSE / NIL / integer / character / assignment / varref / parens / array
+      message / TRUE / FALSE / NIL / integer / character / assignment / varref / parens / array / string
     ) chain:message_chain? <AtomicExpr>
   end
 
@@ -58,6 +58,10 @@ grammar ObjLang
 
   rule array
     '[' members:( sp? first:expr rest:( sp? ',' sp? expr)* )? ']' <Array>
+  end
+
+  rule string
+    '"' meat:([^"]+) '"' <String>
   end
 
   rule op
